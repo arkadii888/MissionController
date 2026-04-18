@@ -1,0 +1,13 @@
+build/
+bin/
+lib/
+
+*.o
+*.a
+*.so
+*.out
+
+*.log
+vgcore.*
+
+.DS_Store
