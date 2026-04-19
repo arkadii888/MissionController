@@ -1,5 +1,6 @@
 #include <iostream>
-#include "mavsdk/mavsdk.h"
+//#include "mavsdk/mavsdk.h"
+#include "mavsdk/mavsdk.hpp"
 
 using namespace mavsdk;
 
@@ -9,6 +10,11 @@ int main() {
     if (connectionResult != ConnectionResult::Success) {
         std::cout << "Adding Connection Failed: " << connectionResult << '\n';
         return 1;
+    }
+
+    auto systems = mavsdk.systems();
+    for(auto &s : systems) {
+        std::cout << s->vehicle_type() << std::endl;
     }
 
     //auto vehicle = mavsdk.systems()[0];
