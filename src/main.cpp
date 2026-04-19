@@ -11,7 +11,7 @@ int main() {
         return 1;
     }
 
-    auto vehicle = mavsdk.systems()[0];
+    //auto vehicle = mavsdk.systems()[0];
     //std::cout << "Vehicle Type: " << vehicle->vehicle_type() << std::endl;
 
     return 0;
