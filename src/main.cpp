@@ -15,14 +15,13 @@ int main() {
     }
 
     while(mavsdk.systems().empty()) {
+        std::cout << "Waiting for Systems Collection..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     auto systems = mavsdk.systems();
     for(auto s : systems) {
-        if(s) {
-            std::cout << "Vehicle Type: " << static_cast<int>(s->vehicle_type()) << std::endl;
-        }
+        std::cout << s->vehicle_type() << std::endl;
     }
 
     return 0;
