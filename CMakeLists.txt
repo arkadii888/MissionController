@@ -10,5 +10,3 @@ add_definitions("-Wall -Wextra -Werror")
 find_package(MAVSDK REQUIRED)
 
 add_executable(takeoff_test src/main.cpp)
-
-add_executable(takeoff_test src/main.cpp)
