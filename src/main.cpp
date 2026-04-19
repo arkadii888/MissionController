@@ -14,7 +14,7 @@ int main() {
         return 1;
     }
 
-    while(mavsdk.empty()) {
+    while(mavsdk.systems().empty()) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
