@@ -19,10 +19,5 @@ int main() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    auto systems = mavsdk.systems();
-    for(auto s : systems) {
-        std::cout << s->vehicle_type() << std::endl;
-    }
-
     return 0;
 }
