@@ -13,8 +13,10 @@ int main() {
     }
 
     auto systems = mavsdk.systems();
-    for(auto &s : systems) {
-        std::cout << s->vehicle_type() << std::endl;
+    for(auto s : systems) {
+        if(s) {
+            std::cout << s->vehicle_type() << std::endl;
+        }
     }
 
     //auto vehicle = mavsdk.systems()[0];
