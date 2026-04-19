@@ -1,8 +1,10 @@
 #include <iostream>
-#include "mavsdk/mavsdk.h"
+#include "mavsdk/mavsdk.hpp"
+
+using namespace mavsdk;
 
 int main() {
-    Mavsdk mavsdk{Mavsdk::Configuration{Mavsdk::ComponentType::GroundStation}};
+    Mavsdk mavsdk{Mavsdk::Configuration{ComponentType::GroundStation}};
     ConnectionResult connectionResult = mavsdk.add_any_connection("serial:///dev/ttyAMA0:921600");
     if (connectionResult != ConnectionResult::Success) {
         std::cout << "Adding Connection Failed: " << connectionResult << '\n';
