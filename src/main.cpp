@@ -1,11 +1,65 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <cstring>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <atomic>
+#include <unistd.h>
+#include <sys/time.h>
+
 #include "mavsdk/mavsdk.h"
 #include "mavsdk/plugins/action/action.h"
 #include "mavsdk/plugins/telemetry/telemetry.h"
 
 using namespace mavsdk;
+
+std::atomic<bool> communicate = true;
+
+void Communication(Action& action) {
+    int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+
+    timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 500000;
+    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+    sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_port = htons(8888);
+    server.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    bind(s, reinterpret_cast<sockaddr*>(&server), sizeof(server));
+
+    char buffer[256];
+
+    while(communicate) {
+        sockaddr_in client;
+        socklen_t socklen = sizeof(client);
+
+        memset(buffer, 0, sizeof(buffer));
+
+        int bytesReceived = recvfrom(s, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<sockaddr*>(&client), &socklen);
+        if(bytesReceived > 0) {
+            buffer[bytesReceived] = '\0';
+            std::string command(buffer);
+
+            if(command == "#kill") {
+                auto killResult = action.kill();
+                const char* reply;
+                if(killResult != Action::Result::Success) {
+                    reply = "Kill Failed.";
+                }
+                else {
+                    reply = "Killed!";
+                }
+                sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
+            }
+        }
+    }
+    close(s);
+}
 
 int main() {
     Mavsdk mavsdk(Mavsdk::Configuration(ComponentType::GroundStation));
@@ -31,6 +85,8 @@ int main() {
     auto system = mavsdk.systems()[0];
     auto action = Action(system);
     auto telemetry = Telemetry(system);
+
+    std::thread communication(Communication, std::ref(action));
 
     std::cout << "MissionController: Checking Health..." << std::endl;
 
@@ -133,6 +189,11 @@ int main() {
     }
 
     std::cout << "MissionController: Landed, Disarmed!" << std::endl;
+
+    communicate = false;
+    if(communication.joinable()) {
+        communication.join();
+    }
 
     return 0;
 }
