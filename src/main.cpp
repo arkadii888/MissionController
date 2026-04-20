@@ -69,13 +69,14 @@ int main() {
     }
 
     std::cout << "MissionController: Altitude Reached!" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     std::cout << "MissionController: Moving To Target Point..." << std::endl;
 
     double currentLatitude = telemetry.position().latitude_deg;
     double currentLongitude = telemetry.position().longitude_deg;
     float absoluteAltitude = telemetry.position().absolute_altitude_m;
 
-    double targetLatitude = currentLatitude + 20.0f / 111.0f;
+    double targetLatitude = currentLatitude + 20.0f / 111111.0f;
 
     auto goResult = action.goto_location(targetLatitude, currentLongitude, absoluteAltitude, 0.0f);
     if(goResult != Action::Result::Success) {
@@ -92,12 +93,13 @@ int main() {
     }
 
     std::cout << "MissionController: Position Reached!" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     std::cout << "MissionController: Moving To Target Point..." << std::endl;
 
     currentLatitude = telemetry.position().latitude_deg;
     currentLongitude = telemetry.position().longitude_deg;
     absoluteAltitude = telemetry.position().absolute_altitude_m;
-    targetLatitude = currentLatitude - 20.0f / 111.0f;
+    targetLatitude = currentLatitude - 20.0f / 111111.0f;
 
     goResult = action.goto_location(targetLatitude, currentLongitude, absoluteAltitude, 180.0f);
     if(goResult != Action::Result::Success) {
@@ -114,6 +116,7 @@ int main() {
     }
 
     std::cout << "MissionController: Position Reached!" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     std::cout << "MissionController: Landing..." << std::endl;
 
     auto landResult = action.land();
