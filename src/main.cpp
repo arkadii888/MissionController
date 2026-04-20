@@ -61,7 +61,7 @@ int main() {
     std::cout << "MissionController: Took Off!" << std::endl;
     std::cout << "MissionController: Waiting For Correct Altitude..." << std::endl;
 
-    float targetAltitude = action.get_takeoff_altitude_m();
+    float targetAltitude = action.get_takeoff_altitude().second;
     float currentAltitude = 0.0f;
     while(currentAltitude < targetAltitude) {
         currentAltitude = telemetry.position().relative_altitude_m;
