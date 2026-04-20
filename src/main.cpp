@@ -63,7 +63,7 @@ int main() {
 
     float targetAltitude = action.get_takeoff_altitude().second;
     float currentAltitude = 0.0f;
-    while(currentAltitude < targetAltitude) {
+    while(currentAltitude < (targetAltitude - 0.5f)) {
         currentAltitude = telemetry.position().relative_altitude_m;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
