@@ -77,7 +77,7 @@ int main() {
 
     double targetLatitude = currentLatitude + 20.0f / 111.0f;
 
-    auto goResult = action.goto_loaction(targetLatitude, currentLongitude, absoluteAltitude, 0.0f);
+    auto goResult = action.goto_location(targetLatitude, currentLongitude, absoluteAltitude, 0.0f);
     if(goResult != Action::Result::Success) {
         std::cout << "MissionController: Move Failed." << std::endl;
         return 1;
@@ -99,7 +99,7 @@ int main() {
     absoluteAltitude = telemetry.position().absolute_altitude_m;
     targetLatitude = currentLatitude - 20.0f / 111.0f;
 
-    goResult = action.goto_loaction(targetLatitude, currentLongitude, absoluteAltitude, 180.0f);
+    goResult = action.goto_location(targetLatitude, currentLongitude, absoluteAltitude, 180.0f);
     if(goResult != Action::Result::Success) {
         std::cout << "MissionController: Move Failed." << std::endl;
         return 1;

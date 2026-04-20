@@ -13,8 +13,4 @@ add_executable(launch src/main.cpp)
 
 target_include_directories(launch PRIVATE /usr/include/mavsdk)
 
-target_link_libraries(launch
-    MAVSDK::mavsdk
-    MAVSDK::mavsdk_action
-    MAVSDK::mavsdk_telemetry
-)
+target_link_libraries(launch MAVSDK::mavsdk)
