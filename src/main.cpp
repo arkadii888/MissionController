@@ -166,6 +166,9 @@ int main() {
 
     if(mission.upload_mission(plan) != Mission::Result::Success) {
         std::cout << "MissionController: Mission Upload Failed..." << std::endl;
+        if(communication.joinable()) {
+            communication.join();
+        }
         return 1;
     }
 
@@ -174,6 +177,9 @@ int main() {
 
     if(action.arm() != Action::Result::Success) {
         std::cout << "MissionController: Arm Failed." << std::endl;
+        if(communication.joinable()) {
+            communication.join();
+        }
         return 1;
     }
 
@@ -182,6 +188,9 @@ int main() {
 
     if(mission.start_mission() != Mission::Result::Success) {
         std::cout << "MissionController: Mission Start Failed..." << std::endl;
+        if(communication.joinable()) {
+            communication.join();
+        }
         return 1;
     }
 
