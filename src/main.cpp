@@ -110,53 +110,53 @@ int main() {
     double fourthLatitude = thirdLatitude + 0.00009f;
 
     Mission::MissionItem item{};
-    item->relative_altitude_m = 5.0f;
-    item->loiter_time_s = 1.0f;
-    item->acceptance_radius_m = 0.5f;
-    item->vehicle_action = Mission::MissionItem::VehicleAction::Takeoff;
+    item.relative_altitude_m = 5.0f;
+    item.loiter_time_s = 1.0f;
+    item.acceptance_radius_m = 0.5f;
+    item.vehicle_action = Mission::MissionItem::VehicleAction::Takeoff;
     missionItems.push_back(item);
 
     Mission::MissionItem item2{};
-    item2->latitude_deg = secondLatitude;
-    item2->loiter_time_s = 1.0f;
-    item2->acceptance_radius_m = 0.5f;
-    item2->yaw_deg = 0;
+    item2.latitude_deg = secondLatitude;
+    item2.loiter_time_s = 1.0f;
+    item2.acceptance_radius_m = 0.5f;
+    item2.yaw_deg = 0;
     missionItems.push_back(item2);
 
     Mission::MissionItem item3{};
-    item3->latitude_deg = thirdLatitude;
-    item3->loiter_time_s = 1.0f;
-    item3->acceptance_radius_m = 0.5f;
-    item3->yaw_deg = 0;
+    item3.latitude_deg = thirdLatitude;
+    item3.loiter_time_s = 1.0f;
+    item3.acceptance_radius_m = 0.5f;
+    item3.yaw_deg = 0;
     missionItems.push_back(item3);
 
     Mission::MissionItem item4{};
-    item4->latitude_deg = fourthLatitude;
-    item4->loiter_time_s = 1.0f;
-    item4->acceptance_radius_m = 0.5f;
-    item4->yaw_deg = 0;
+    item4.latitude_deg = fourthLatitude;
+    item4.loiter_time_s = 1.0f;
+    item4.acceptance_radius_m = 0.5f;
+    item4.yaw_deg = 0;
     missionItems.push_back(item4);
 
     Mission::MissionItem item5{};
-    item5->latitude_deg = thirdLatitude;
-    item5->is_fly_through = true;
-    item5->acceptance_radius_m = 0.5f;
-    item5->yaw_deg = 180;
+    item5.latitude_deg = thirdLatitude;
+    item5.is_fly_through = true;
+    item5.acceptance_radius_m = 0.5f;
+    item5.yaw_deg = 180;
     missionItems.push_back(item5);
 
     Mission::MissionItem item6{};
-    item6->latitude_deg = secondLatitude;
-    item6->is_fly_through = true;
-    item6->acceptance_radius_m = 0.5f;
-    item6->yaw_deg = 180;
+    item6.latitude_deg = secondLatitude;
+    item6.is_fly_through = true;
+    item6.acceptance_radius_m = 0.5f;
+    item6.yaw_deg = 180;
     missionItems.push_back(item6);
 
     Mission::MissionItem item7{};
-    item7->latitude_deg = firstLatitude;
-    item7->acceptance_radius_m = 0.5f;
-    item7->yaw_deg = 180;
-    item7->loiter_time_s = 1.0f;
-    item7->vehicle_action = Mission::MissionItem::VehicleAction::Land;
+    item7.latitude_deg = firstLatitude;
+    item7.acceptance_radius_m = 0.5f;
+    item7.yaw_deg = 180;
+    item7.loiter_time_s = 1.0f;
+    item7.vehicle_action = Mission::MissionItem::VehicleAction::Land;
     missionItems.push_back(item7);
 
     std::cout << "MissionController: Uploading Mission..." << std::endl;
