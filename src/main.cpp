@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <vector>
+#include <cmath>
 
 #include "mavsdk/mavsdk.h"
 #include "mavsdk/plugins/action/action.h"
@@ -115,7 +116,6 @@ int main() {
     item.latitude_deg = firstLatitude;
     item.longitude_deg = currentLongitude;
     item.relative_altitude_m = 5.0f;
-    item.loiter_time_s = 1.0f;
     item.acceptance_radius_m = 0.5f;
     item.vehicle_action = Mission::MissionItem::VehicleAction::Takeoff;
     missionItems.push_back(item);
@@ -171,7 +171,6 @@ int main() {
     item7.relative_altitude_m = 5.0f;
     item7.acceptance_radius_m = 0.5f;
     item7.yaw_deg = 180;
-    item7.loiter_time_s = 1.0f;
     item7.vehicle_action = Mission::MissionItem::VehicleAction::Land;
     missionItems.push_back(item7);
 
