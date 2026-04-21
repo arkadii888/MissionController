@@ -1,5 +1,6 @@
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <cstring>
 #include <sys/socket.h>
@@ -8,10 +9,12 @@
 #include <atomic>
 #include <unistd.h>
 #include <sys/time.h>
+#include <vector>
 
 #include "mavsdk/mavsdk.h"
 #include "mavsdk/plugins/action/action.h"
 #include "mavsdk/plugins/telemetry/telemetry.h"
+#include <mavsdk/plugins/mission/mission.h>
 
 using namespace mavsdk;
 
@@ -85,6 +88,7 @@ int main() {
     auto system = mavsdk.systems()[0];
     auto action = Action(system);
     auto telemetry = Telemetry(system);
+    auto mission = Mission(system);
 
     std::thread communication(Communication, std::ref(action));
 
@@ -96,99 +100,92 @@ int main() {
     }
 
     std::cout << "MissionController: Ready To Arm!" << std::endl;
+    std::cout << "MissionController: Defining Mission..." << std::endl;
+
+    std::vector<std::shared_ptr<MissionItem>> missionItems;
+
+    double firstLatitude = telemetry.position().latitude_deg;
+    double secondLatitude = firstLatitude + 0.00009f;
+    double thirdLatitude = secondLatitude + 0.00009f;
+    double fourthLatitude = thirdLatitude + 0.00009f;
+
+    auto item = std::make_shared<MissionItem>();
+    item->relative_altitude_m = 5.0f;
+    item->loiter_time_s = 1.0f;
+    item->acceptance_radius_m = 0.5f;
+    item->vehicle_action = VehicleAction::Takeoff;
+    missionItems.push_back(item);
+
+    auto item2 = std::make_shared<MissionItem>();
+    item2->latitude_deg = secondLatitude;
+    item2->loiter_time_s = 1.0f;
+    item2->acceptance_radius_m = 0.5f;
+    item2->yaw_degree = 0;
+    missionItems.push_back(item2);
+
+    auto item3 = std::make_shared<MissionItem>();
+    item3->latitude_deg = thirdLatitude;
+    item3->loiter_time_s = 1.0f;
+    item3->acceptance_radius_m = 0.5f;
+    item3->yaw_degree = 0;
+    missionItems.push_back(item3);
+
+    auto item4 = std::make_shared<MissionItem>();
+    item4->latitude_deg = fourthLatitude;
+    item4->loiter_time_s = 1.0f;
+    item4->acceptance_radius_m = 0.5f;
+    item4->yaw_degree = 0;
+    missionItems.push_back(item4);
+
+    auto item5 = std::make_shared<MissionItem>();
+    item5->latitude_deg = thirdLatitude;
+    item5->is_fly_through = true;
+    item5->acceptance_radius_m = 0.5f;
+    item5->yaw_degree = 180;
+    missionItems.push_back(item5);
+
+    auto item6 = std::make_shared<MissionItem>();
+    item6->latitude_deg = secondLatitude;
+    item6->is_fly_through = true;
+    item6->acceptance_radius_m = 0.5f;
+    item6->yaw_degree = 180;
+    missionItems.push_back(item6);
+
+    auto item7 = std::make_shared<MissionItem>();
+    item7->latitude_deg = firstLatitude;
+    item7->acceptance_radius_m = 0.5f;
+    item7->yaw_degree = 180;
+    item7->loiter_time_s = 1.0f;
+    item7->vehicle_action = VehicleAction::Land;
+    missionItems.push_back(item7);
+
+    std::cout << "MissionController: Uploading Mission..." << std::endl;
+
+    Mission::MissionPlan plan;
+    plan.mission_items = missionItems;
+
+    if(mission.upload_mission(plan) != Mission::Result::Success) {
+        std::cout << "MissionController: Mission Upload Failed..." << std::endl;
+        return 1;
+    }
+
+    std::cout << "MissionController: Mission Uploaded!" << std::endl;
     std::cout << "MissionController: Arming..." << std::endl;
 
-    auto armResult = action.arm();
-    if(armResult != Action::Result::Success) {
+    if(action.arm() != Action::Result::Success) {
         std::cout << "MissionController: Arm Failed." << std::endl;
         return 1;
     }
 
     std::cout << "MissionController: Armed!" << std::endl;
-    std::cout << "MissionController: Taking Off..." << std::endl;
+    std::cout << "MissionController: Starting Mission..." << std::endl;
 
-    action.set_takeoff_altitude(5.0);
-    auto takeoffResult = action.takeoff();
-    if(takeoffResult != Action::Result::Success) {
-        std::cout << "MissionController: Takeoff Failed." << std::endl;
+    if(mission.start_mission() != Mission::Result::Success) {
+        std::cout << "MissionController: Mission Start Failed..." << std::endl;
         return 1;
     }
 
-    std::cout << "MissionController: Took Off!" << std::endl;
-    std::cout << "MissionController: Waiting For Correct Altitude..." << std::endl;
-
-    float targetAltitude = action.get_takeoff_altitude().second;
-    float currentAltitude = 0.0f;
-    while(currentAltitude < (targetAltitude - 0.5f)) {
-        currentAltitude = telemetry.position().relative_altitude_m;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Altitude Reached!" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::cout << "MissionController: Moving To Target Point..." << std::endl;
-
-    double currentLatitude = telemetry.position().latitude_deg;
-    double currentLongitude = telemetry.position().longitude_deg;
-    float absoluteAltitude = telemetry.position().absolute_altitude_m;
-
-    double targetLatitude = currentLatitude + 20.0f / 111111.0f;
-
-    auto goResult = action.goto_location(targetLatitude, currentLongitude, absoluteAltitude, 0.0f);
-    if(goResult != Action::Result::Success) {
-        std::cout << "MissionController: Move Failed." << std::endl;
-        return 1;
-    }
-
-    std::cout << "MissionController: Move Started!" << std::endl;
-    std::cout << "MissionController: Waiting For Correct Position..." << std::endl;
-
-    while(currentLatitude < targetLatitude) {
-        currentLatitude = telemetry.position().latitude_deg;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Position Reached!" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::cout << "MissionController: Moving To Target Point..." << std::endl;
-
-    currentLatitude = telemetry.position().latitude_deg;
-    currentLongitude = telemetry.position().longitude_deg;
-    absoluteAltitude = telemetry.position().absolute_altitude_m;
-    targetLatitude = currentLatitude - 20.0f / 111111.0f;
-
-    goResult = action.goto_location(targetLatitude, currentLongitude, absoluteAltitude, 180.0f);
-    if(goResult != Action::Result::Success) {
-        std::cout << "MissionController: Move Failed." << std::endl;
-        return 1;
-    }
-
-    std::cout << "MissionController: Move Started!" << std::endl;
-    std::cout << "MissionController: Waiting For Correct Position..." << std::endl;
-
-    while(currentLatitude > targetLatitude) {
-        currentLatitude = telemetry.position().latitude_deg;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Position Reached!" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    std::cout << "MissionController: Landing..." << std::endl;
-
-    auto landResult = action.land();
-    if(landResult != Action::Result::Success) {
-        std::cout << "MissionController: Land Failed." << std::endl;
-        return 1;
-    }
-
-    std::cout << "MissionController: Land Started!" << std::endl;
-    std::cout << "MissionController: Waiting To Disarm..." << std::endl;
-
-    while(telemetry.armed()) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Landed, Disarmed!" << std::endl;
+    std::cout << "MissionController: Mission Started!" << std::endl;
 
     communicate = false;
     if(communication.joinable()) {
