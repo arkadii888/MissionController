@@ -80,7 +80,7 @@ int main() {
     std::cout << "MissionController: Detecting Vehicle..." << std::endl;
 
     while(mavsdk.systems().empty()) {
-        std::cout << "MissionController: Vehicle Not Detected Yet." << std::endl;
+        std::cout << "MissionController: Vehicle Not Detected Yet..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
@@ -96,7 +96,7 @@ int main() {
     std::cout << "MissionController: Checking Health..." << std::endl;
 
     while(!telemetry.health_all_ok()) {
-        std::cout << "MissionController: Vehicle Not Ready To Arm." << std::endl;
+        std::cout << "MissionController: Vehicle Not Ready To Arm..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
@@ -180,7 +180,7 @@ int main() {
     plan.mission_items = missionItems;
 
     if(mission.upload_mission(plan) != Mission::Result::Success) {
-        std::cout << "MissionController: Mission Upload Failed..." << std::endl;
+        std::cout << "MissionController: Mission Upload Failed." << std::endl;
         if(communication.joinable()) {
             communication.join();
         }
@@ -202,7 +202,7 @@ int main() {
     std::cout << "MissionController: Starting Mission..." << std::endl;
 
     if(mission.start_mission() != Mission::Result::Success) {
-        std::cout << "MissionController: Mission Start Failed..." << std::endl;
+        std::cout << "MissionController: Mission Start Failed." << std::endl;
         if(communication.joinable()) {
             communication.join();
         }
@@ -210,6 +210,25 @@ int main() {
     }
 
     std::cout << "MissionController: Mission Started!" << std::endl;
+
+    while(true) {
+        auto missionStatus = mission.is_mission_finished();
+
+        if(missionStatus.first != Mission::Result::Success) {
+            std::cout << "MissionController: Mission Status Check Failed." << std::endl;
+            break;
+        }
+
+        if(missionStatus.second) {
+            std::cout << "MissionController: Mission Finished!" << std::endl;
+            break;
+        }
+        else {
+            std::cout << "MissionController: Mission Active..." << std::endl;
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
     communicate = false;
     if(communication.joinable()) {
