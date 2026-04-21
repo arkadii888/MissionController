@@ -113,7 +113,7 @@ int main() {
     item->relative_altitude_m = 5.0f;
     item->loiter_time_s = 1.0f;
     item->acceptance_radius_m = 0.5f;
-    item->vehicle_action = VehicleAction::Takeoff;
+    item->vehicle_action = Mission::VehicleAction::Takeoff;
     missionItems.push_back(item);
 
     auto item2 = std::make_shared<Mission::MissionItem>();
@@ -156,7 +156,7 @@ int main() {
     item7->acceptance_radius_m = 0.5f;
     item7->yaw_degree = 180;
     item7->loiter_time_s = 1.0f;
-    item7->vehicle_action = VehicleAction::Land;
+    item7->vehicle_action = Mission::VehicleAction::Land;
     missionItems.push_back(item7);
 
     std::cout << "MissionController: Uploading Mission..." << std::endl;
