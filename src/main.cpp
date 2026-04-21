@@ -120,41 +120,41 @@ int main() {
     item2->latitude_deg = secondLatitude;
     item2->loiter_time_s = 1.0f;
     item2->acceptance_radius_m = 0.5f;
-    item2->yaw_degree = 0;
+    item2->yaw_deg = 0;
     missionItems.push_back(item2);
 
     auto item3 = std::make_shared<Mission::MissionItem>();
     item3->latitude_deg = thirdLatitude;
     item3->loiter_time_s = 1.0f;
     item3->acceptance_radius_m = 0.5f;
-    item3->yaw_degree = 0;
+    item3->yaw_deg = 0;
     missionItems.push_back(item3);
 
     auto item4 = std::make_shared<Mission::MissionItem>();
     item4->latitude_deg = fourthLatitude;
     item4->loiter_time_s = 1.0f;
     item4->acceptance_radius_m = 0.5f;
-    item4->yaw_degree = 0;
+    item4->yaw_deg = 0;
     missionItems.push_back(item4);
 
     auto item5 = std::make_shared<Mission::MissionItem>();
     item5->latitude_deg = thirdLatitude;
     item5->is_fly_through = true;
     item5->acceptance_radius_m = 0.5f;
-    item5->yaw_degree = 180;
+    item5->yaw_deg = 180;
     missionItems.push_back(item5);
 
     auto item6 = std::make_shared<Mission::MissionItem>();
     item6->latitude_deg = secondLatitude;
     item6->is_fly_through = true;
     item6->acceptance_radius_m = 0.5f;
-    item6->yaw_degree = 180;
+    item6->yaw_deg = 180;
     missionItems.push_back(item6);
 
     auto item7 = std::make_shared<Mission::MissionItem>();
     item7->latitude_deg = firstLatitude;
     item7->acceptance_radius_m = 0.5f;
-    item7->yaw_degree = 180;
+    item7->yaw_deg = 180;
     item7->loiter_time_s = 1.0f;
     item7->vehicle_action = Mission::MissionItem::VehicleAction::Land;
     missionItems.push_back(item7);
