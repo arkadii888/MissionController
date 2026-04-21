@@ -102,56 +102,56 @@ int main() {
     std::cout << "MissionController: Ready To Arm!" << std::endl;
     std::cout << "MissionController: Defining Mission..." << std::endl;
 
-    std::vector<std::shared_ptr<MissionItem>> missionItems;
+    std::vector<std::shared_ptr<Mission::MissionItem>> missionItems;
 
     double firstLatitude = telemetry.position().latitude_deg;
     double secondLatitude = firstLatitude + 0.00009f;
     double thirdLatitude = secondLatitude + 0.00009f;
     double fourthLatitude = thirdLatitude + 0.00009f;
 
-    auto item = std::make_shared<MissionItem>();
+    auto item = std::make_shared<Mission::MissionItem>();
     item->relative_altitude_m = 5.0f;
     item->loiter_time_s = 1.0f;
     item->acceptance_radius_m = 0.5f;
     item->vehicle_action = VehicleAction::Takeoff;
     missionItems.push_back(item);
 
-    auto item2 = std::make_shared<MissionItem>();
+    auto item2 = std::make_shared<Mission::MissionItem>();
     item2->latitude_deg = secondLatitude;
     item2->loiter_time_s = 1.0f;
     item2->acceptance_radius_m = 0.5f;
     item2->yaw_degree = 0;
     missionItems.push_back(item2);
 
-    auto item3 = std::make_shared<MissionItem>();
+    auto item3 = std::make_shared<Mission::MissionItem>();
     item3->latitude_deg = thirdLatitude;
     item3->loiter_time_s = 1.0f;
     item3->acceptance_radius_m = 0.5f;
     item3->yaw_degree = 0;
     missionItems.push_back(item3);
 
-    auto item4 = std::make_shared<MissionItem>();
+    auto item4 = std::make_shared<Mission::MissionItem>();
     item4->latitude_deg = fourthLatitude;
     item4->loiter_time_s = 1.0f;
     item4->acceptance_radius_m = 0.5f;
     item4->yaw_degree = 0;
     missionItems.push_back(item4);
 
-    auto item5 = std::make_shared<MissionItem>();
+    auto item5 = std::make_shared<Mission::MissionItem>();
     item5->latitude_deg = thirdLatitude;
     item5->is_fly_through = true;
     item5->acceptance_radius_m = 0.5f;
     item5->yaw_degree = 180;
     missionItems.push_back(item5);
 
-    auto item6 = std::make_shared<MissionItem>();
+    auto item6 = std::make_shared<Mission::MissionItem>();
     item6->latitude_deg = secondLatitude;
     item6->is_fly_through = true;
     item6->acceptance_radius_m = 0.5f;
     item6->yaw_degree = 180;
     missionItems.push_back(item6);
 
-    auto item7 = std::make_shared<MissionItem>();
+    auto item7 = std::make_shared<Mission::MissionItem>();
     item7->latitude_deg = firstLatitude;
     item7->acceptance_radius_m = 0.5f;
     item7->yaw_degree = 180;
