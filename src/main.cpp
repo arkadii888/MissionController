@@ -105,11 +105,15 @@ int main() {
     std::vector<Mission::MissionItem> missionItems;
 
     double firstLatitude = telemetry.position().latitude_deg;
+    double currentLongitude = telemetry.position().longitude_deg;
+
     double secondLatitude = firstLatitude + 0.00009f;
     double thirdLatitude = secondLatitude + 0.00009f;
     double fourthLatitude = thirdLatitude + 0.00009f;
 
     Mission::MissionItem item{};
+    item.latitude_deg = firstLatitude;
+    item.longitude_deg = currentLongitude;
     item.relative_altitude_m = 5.0f;
     item.loiter_time_s = 1.0f;
     item.acceptance_radius_m = 0.5f;
@@ -118,6 +122,8 @@ int main() {
 
     Mission::MissionItem item2{};
     item2.latitude_deg = secondLatitude;
+    item2.longitude_deg = currentLongitude;
+    item2.relative_altitude_m = 5.0f;
     item2.loiter_time_s = 1.0f;
     item2.acceptance_radius_m = 0.5f;
     item2.yaw_deg = 0;
@@ -125,6 +131,8 @@ int main() {
 
     Mission::MissionItem item3{};
     item3.latitude_deg = thirdLatitude;
+    item3.longitude_deg = currentLongitude;
+    item3.relative_altitude_m = 5.0f;
     item3.loiter_time_s = 1.0f;
     item3.acceptance_radius_m = 0.5f;
     item3.yaw_deg = 0;
@@ -132,6 +140,8 @@ int main() {
 
     Mission::MissionItem item4{};
     item4.latitude_deg = fourthLatitude;
+    item4.longitude_deg = currentLongitude;
+    item4.relative_altitude_m = 5.0f;
     item4.loiter_time_s = 1.0f;
     item4.acceptance_radius_m = 0.5f;
     item4.yaw_deg = 0;
@@ -139,6 +149,8 @@ int main() {
 
     Mission::MissionItem item5{};
     item5.latitude_deg = thirdLatitude;
+    item5.longitude_deg = currentLongitude;
+    item5.relative_altitude_m = 5.0f;
     item5.is_fly_through = true;
     item5.acceptance_radius_m = 0.5f;
     item5.yaw_deg = 180;
@@ -146,6 +158,8 @@ int main() {
 
     Mission::MissionItem item6{};
     item6.latitude_deg = secondLatitude;
+    item6.longitude_deg = currentLongitude;
+    item6.relative_altitude_m = 5.0f;
     item6.is_fly_through = true;
     item6.acceptance_radius_m = 0.5f;
     item6.yaw_deg = 180;
@@ -153,6 +167,8 @@ int main() {
 
     Mission::MissionItem item7{};
     item7.latitude_deg = firstLatitude;
+    item7.longitude_deg = currentLongitude;
+    item7.relative_altitude_m = 5.0f;
     item7.acceptance_radius_m = 0.5f;
     item7.yaw_deg = 180;
     item7.loiter_time_s = 1.0f;
