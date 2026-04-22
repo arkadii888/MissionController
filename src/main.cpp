@@ -161,8 +161,7 @@ int main() {
 
         vehicle.Arm();
 
-        //wait to get a mission
-        //wait mission end
+        // wait for mission order, wait for mission end, arm, disarm correctly
 
         vehicle.ClearMission();
     } catch (const std::exception& error) {
