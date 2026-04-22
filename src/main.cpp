@@ -18,7 +18,7 @@
 #include <mavsdk/plugins/mission/mission.h>
 
 #include <grpcpp/grpcpp.h>
-#include "internal_comm.grpc.pb.h"
+#include "internal_communication.grpc.pb.h"
 
 using namespace mavsdk;
 
