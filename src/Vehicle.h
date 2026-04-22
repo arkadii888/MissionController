@@ -22,7 +22,7 @@ public:
 
     void Kill();
     void Arm();
-    void CompleteMission(const std::vector<Mission::MissionItem>& missionItems);
+    void StartMission(const std::vector<Mission::MissionItem>& missionItems);
     void ClearMission();
 
     TelemetryData GetTelemetry();

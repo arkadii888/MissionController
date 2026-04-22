@@ -58,7 +58,7 @@ void Vehicle::Arm() {
     std::cout << "MissionController: Armed!" << std::endl;
 }
 
-void Vehicle::CompleteMission(const std::vector<Mission::MissionItem>& missionItems) {
+void Vehicle::StartMission(const std::vector<Mission::MissionItem>& missionItems) {
     Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
 
@@ -71,23 +71,6 @@ void Vehicle::CompleteMission(const std::vector<Mission::MissionItem>& missionIt
     }
 
     std::cout << "Vehicle::CompleteMission: Mission Started!" << std::endl;
-
-    while(true) {
-        auto missionStatus = mission.is_mission_finished();
-
-        if(missionStatus.first != Mission::Result::Success) {
-            throw std::runtime_error("Vehicle::CompleteMission: Mission Status Check Failed.");
-        }
-
-        if(missionStatus.second) {
-            break;
-        }
-
-        std::cout << "Vehicle::CompleteMission: Mission Active..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-    }
-
-    std::cout << "Vehicle::CompleteMission: Mission Completed!" << std::endl;
 }
 
 void Vehicle::ClearMission() {

@@ -39,6 +39,39 @@ public:
         return grpc::Status::OK;
     }
 
+    grpc::Status StartMission(grpc::ServerContext* context, const MissionItemList* request, Empty* reply) override {
+        std::vector<Mission::MissionItem> items;
+        items.reserve(request->items_size());
+
+        for(auto& receivedItem : request->items()) {
+            Mission::MissionItem item{};
+
+            item.latitude_deg = receivedItem.latitude_deg();
+            item.longitude_deg = receivedItem.longitude_deg();
+            item.relative_altitude_m = receivedItem.relative_altitude_m();
+            item.speed_m_s = receivedItem.speed_m_s();
+            item.is_fly_through = receivedItem.is_fly_through();
+            item.gimbal_pitch_deg = receivedItem.gimbal_pitch_deg();
+            item.gimbal_yaw_deg = receivedItem.gimbal_yaw_deg();
+            item.camera_action = receivedItem.camera_action();
+            item.loiter_time_s = receivedItem.loiter_time_s();
+            item.camera_photo_interval_s = receivedItem.camera_photo_interval_s();
+            item.acceptance_radius_m = receivedItem.acceptance_radius_m();
+            item.yaw_deg = receivedItem.yaw_deg();
+            item.camera_photo_distance_m = receivedItem.camera_photo_distance_m();
+            item.vehicle_action = receivedItem.vehicle_action();
+
+            items.push_back(item);
+        }
+
+        try {
+            vehicle.StartMission(items);
+        } catch (const std::exception& error) {
+            std::cout << "Error: " << error.what() << std::endl;
+        }
+        return grpc::Status::OK;
+    }
+
 private:
     Vehicle& vehicle;
 };
@@ -127,7 +160,10 @@ int main() {
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle));
 
         vehicle.Arm();
-        vehicle.CompleteMission();
+
+        //wait to get a mission
+        //wait mission end
+
         vehicle.ClearMission();
     } catch (const std::exception& error) {
         std::cout << "Error: " << error.what() << std::endl;
