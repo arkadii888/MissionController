@@ -19,9 +19,9 @@
 
 using namespace mavsdk;
 
-std::atomic<bool> communicate = true;
+std::atomic<bool> communicateWithGroundBase = true;
 
-void Communication(Action& action) {
+void GroundBaseCommunication(Action& action) {
     int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     timeval tv;
@@ -38,7 +38,7 @@ void Communication(Action& action) {
 
     char buffer[256];
 
-    while(communicate) {
+    while(communicateWithGroundBase) {
         sockaddr_in client;
         socklen_t socklen = sizeof(client);
 
@@ -91,7 +91,7 @@ int main() {
     auto telemetry = Telemetry(system);
     auto mission = Mission(system);
 
-    std::thread communication(Communication, std::ref(action));
+    std::thread groundBaseCommunication(GroundBaseCommunication, std::ref(action));
 
     std::cout << "MissionController: Checking Health..." << std::endl;
 
@@ -181,8 +181,8 @@ int main() {
 
     if(mission.upload_mission(plan) != Mission::Result::Success) {
         std::cout << "MissionController: Mission Upload Failed." << std::endl;
-        if(communication.joinable()) {
-            communication.join();
+        if(groundBaseCommunication.joinable()) {
+            groundBaseCommunication.join();
         }
         return 1;
     }
@@ -192,8 +192,8 @@ int main() {
 
     if(action.arm() != Action::Result::Success) {
         std::cout << "MissionController: Arm Failed." << std::endl;
-        if(communication.joinable()) {
-            communication.join();
+        if(groundBaseCommunication.joinable()) {
+            groundBaseCommunication.join();
         }
         return 1;
     }
@@ -203,8 +203,8 @@ int main() {
 
     if(mission.start_mission() != Mission::Result::Success) {
         std::cout << "MissionController: Mission Start Failed." << std::endl;
-        if(communication.joinable()) {
-            communication.join();
+        if(groundBaseCommunication.joinable()) {
+            groundBaseCommunication.join();
         }
         return 1;
     }
@@ -230,9 +230,9 @@ int main() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    communicate = false;
-    if(communication.joinable()) {
-        communication.join();
+    communicateWithGroundBase = false;
+    if(groundBaseCommunication.joinable()) {
+        groundBaseCommunication.join();
     }
 
     return 0;
