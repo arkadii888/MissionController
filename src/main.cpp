@@ -39,7 +39,7 @@ private:
 std::unique_ptr<grpc::Server> internalServer;
 
 void InternalCommunication(Telemetry& telemetry) {
-    InternalServiceImplementation service();
+    InternalServiceImplementation service(telemetry);
     grpc::ServerBuilder builder;
 
     builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
