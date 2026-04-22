@@ -1,6 +1,8 @@
 #include <chrono>
+#include <exception>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <thread>
 #include <cstring>
 #include <sys/socket.h>
@@ -20,26 +22,31 @@
 #include <grpcpp/grpcpp.h>
 #include "internal_communication.grpc.pb.h"
 
+#include "Vehicle.h"
+
 using namespace mavsdk;
 
 class InternalServiceImplementation final : public InternalService::Service {
 public:
-    InternalServiceImplementation(Telemetry& t) : telemetry(t) {}
+    InternalServiceImplementation(Vehicle& v) : vehicle(v) {}
 
     grpc::Status GetTelemetry(grpc::ServerContext*, const Empty*, TelemetryResponse* reply) {
-        reply->set_current_latitude(telemetry.position().latitude_deg);
-        reply->set_current_longitude(telemetry.position().longitude_deg);
+        auto data = vehicle.GetTelemetry();
+        reply->set_latitude_deg(data.latitude_deg);
+        reply->set_longitude_deg(data.longitude_deg);
+        reply->set_absolute_altitude_m(data.absolute_altitude_m);
+        reply->set_relative_altitude_m(data.relative_altitude_m);
         return grpc::Status::OK;
     }
 
 private:
-    Telemetry& telemetry;
+    Vehicle& vehicle;
 };
 
 std::unique_ptr<grpc::Server> internalServer;
 
-void InternalCommunication(Telemetry& telemetry) {
-    InternalServiceImplementation service(telemetry);
+void InternalCommunication(Vehicle& vehicle) {
+    InternalServiceImplementation service(vehicle);
     grpc::ServerBuilder builder;
 
     builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
@@ -52,7 +59,7 @@ void InternalCommunication(Telemetry& telemetry) {
 
 std::atomic<bool> communicateWithGroundBase = true;
 
-void GroundBaseCommunication(Action& action) {
+void GroundBaseCommunication(Vehicle& vehicle) {
     int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     timeval tv;
@@ -81,13 +88,11 @@ void GroundBaseCommunication(Action& action) {
             std::string command(buffer);
 
             if(command == "#kill") {
-                auto killResult = action.kill();
-                const char* reply;
-                if(killResult != Action::Result::Success) {
-                    reply = "Kill Failed.";
-                }
-                else {
-                    reply = "Killed!";
+                const char* reply = "Killed!";
+                try {
+                    vehicle.Kill();
+                } catch (const std::exception& error) {
+                    reply = error.what();
                 }
                 sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
             }
@@ -112,175 +117,23 @@ void ClearThreads(std::thread& groundBaseCommunication, std::thread& internalCom
 }
 
 int main() {
-    Mavsdk mavsdk(Mavsdk::Configuration(ComponentType::GroundStation));
+    std::thread groundBaseCommunication;
+    std::thread internalCommunication;
 
-    std::cout << "MissionController: Connecting To Vehicle..." << std::endl;
+    try {
+        Vehicle vehicle;
 
-    ConnectionResult connectionResult = mavsdk.add_any_connection("serial:///dev/ttyAMA0:921600");
-    if (connectionResult != ConnectionResult::Success) {
-        std::cout << "MissionController: Connection Failed: " << static_cast<int>(connectionResult) << "." << std::endl;
-        return 1;
-    }
+        groundBaseCommunication = std::thread(GroundBaseCommunication, std::ref(vehicle));
+        internalCommunication = std::thread(InternalCommunication, std::ref(vehicle));
 
-    std::cout << "MissionController: Vehicle Connected!" << std::endl;
-    std::cout << "MissionController: Detecting Vehicle..." << std::endl;
-
-    while(mavsdk.systems().empty()) {
-        std::cout << "MissionController: Vehicle Not Detected Yet..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Vehicle Detected!" << std::endl;
-
-    auto system = mavsdk.systems()[0];
-    auto action = Action(system);
-    auto telemetry = Telemetry(system);
-    auto mission = Mission(system);
-
-    std::thread groundBaseCommunication(GroundBaseCommunication, std::ref(action));
-    std::thread internalCommunication(InternalCommunication, std::ref(telemetry));
-
-    std::cout << "MissionController: Checking Health..." << std::endl;
-
-    while(!telemetry.health_all_ok()) {
-        std::cout << "MissionController: Vehicle Not Ready To Arm..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Ready To Arm!" << std::endl;
-    std::cout << "MissionController: Defining Mission..." << std::endl;
-
-    std::vector<Mission::MissionItem> missionItems;
-
-    double firstLatitude = telemetry.position().latitude_deg;
-    double currentLongitude = telemetry.position().longitude_deg;
-
-    double secondLatitude = firstLatitude + 0.00009f;
-    double thirdLatitude = secondLatitude + 0.00009f;
-    double fourthLatitude = thirdLatitude + 0.00009f;
-
-    Mission::MissionItem item{};
-    item.latitude_deg = firstLatitude;
-    item.longitude_deg = currentLongitude;
-    item.relative_altitude_m = 5.0f;
-    item.acceptance_radius_m = 0.5f;
-    item.vehicle_action = Mission::MissionItem::VehicleAction::Takeoff;
-    missionItems.push_back(item);
-
-    Mission::MissionItem item2{};
-    item2.latitude_deg = secondLatitude;
-    item2.longitude_deg = currentLongitude;
-    item2.relative_altitude_m = 5.0f;
-    item2.loiter_time_s = 1.0f;
-    item2.acceptance_radius_m = 0.5f;
-    item2.yaw_deg = 0;
-    missionItems.push_back(item2);
-
-    Mission::MissionItem item3{};
-    item3.latitude_deg = thirdLatitude;
-    item3.longitude_deg = currentLongitude;
-    item3.relative_altitude_m = 5.0f;
-    item3.loiter_time_s = 1.0f;
-    item3.acceptance_radius_m = 0.5f;
-    item3.yaw_deg = 0;
-    missionItems.push_back(item3);
-
-    Mission::MissionItem item4{};
-    item4.latitude_deg = fourthLatitude;
-    item4.longitude_deg = currentLongitude;
-    item4.relative_altitude_m = 5.0f;
-    item4.loiter_time_s = 1.0f;
-    item4.acceptance_radius_m = 0.5f;
-    item4.yaw_deg = 0;
-    missionItems.push_back(item4);
-
-    Mission::MissionItem item5{};
-    item5.latitude_deg = thirdLatitude;
-    item5.longitude_deg = currentLongitude;
-    item5.relative_altitude_m = 5.0f;
-    item5.is_fly_through = true;
-    item5.acceptance_radius_m = 0.5f;
-    item5.yaw_deg = 180;
-    missionItems.push_back(item5);
-
-    Mission::MissionItem item6{};
-    item6.latitude_deg = secondLatitude;
-    item6.longitude_deg = currentLongitude;
-    item6.relative_altitude_m = 5.0f;
-    item6.is_fly_through = true;
-    item6.acceptance_radius_m = 0.5f;
-    item6.yaw_deg = 180;
-    missionItems.push_back(item6);
-
-    Mission::MissionItem item7{};
-    item7.latitude_deg = firstLatitude;
-    item7.longitude_deg = currentLongitude;
-    item7.relative_altitude_m = 5.0f;
-    item7.acceptance_radius_m = 0.5f;
-    item7.yaw_deg = 180;
-    item7.vehicle_action = Mission::MissionItem::VehicleAction::Land;
-    missionItems.push_back(item7);
-
-    std::cout << "MissionController: Uploading Mission..." << std::endl;
-
-    Mission::MissionPlan plan{};
-    plan.mission_items = missionItems;
-
-    if(mission.upload_mission(plan) != Mission::Result::Success) {
-        std::cout << "MissionController: Mission Upload Failed." << std::endl;
+        vehicle.Arm();
+        vehicle.CompleteMission();
+        vehicle.ClearMission();
+    } catch (const std::exception& error) {
+        std::cout << "Error: " << error.what() << std::endl;
         ClearThreads(groundBaseCommunication, internalCommunication);
-        return 1;
     }
-
-    std::cout << "MissionController: Mission Uploaded!" << std::endl;
-    std::cout << "MissionController: Arming..." << std::endl;
-
-    if(action.arm() != Action::Result::Success) {
-        std::cout << "MissionController: Arm Failed." << std::endl;
-        ClearThreads(groundBaseCommunication, internalCommunication);
-        return 1;
-    }
-
-    std::cout << "MissionController: Armed!" << std::endl;
-    std::cout << "MissionController: Starting Mission..." << std::endl;
-
-    if(mission.start_mission() != Mission::Result::Success) {
-        std::cout << "MissionController: Mission Start Failed." << std::endl;
-        ClearThreads(groundBaseCommunication, internalCommunication);
-        return 1;
-    }
-
-    std::cout << "MissionController: Mission Started!" << std::endl;
-
-    while(true) {
-        auto missionStatus = mission.is_mission_finished();
-
-        if(missionStatus.first != Mission::Result::Success) {
-            std::cout << "MissionController: Mission Status Check Failed." << std::endl;
-            break;
-        }
-
-        if(missionStatus.second) {
-            break;
-        }
-
-        std::cout << "MissionController: Mission Active..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    std::cout << "MissionController: Mission Finished!" << std::endl;
-    std::cout << "MissionController: Clearing Mission..." << std::endl;
-
-    if(mission.clear_mission() != Mission::Result::Success) {
-        std::cout << "MissionController: Mission Clear Failed." << std::endl;
-        ClearThreads(groundBaseCommunication, internalCommunication);
-        return 1;
-    }
-
-    std::cout << "MissionController: Mission Cleared!" << std::endl;
-    std::cout << "MissionController: Shutting down..." << std::endl;
 
     ClearThreads(groundBaseCommunication, internalCommunication);
-
     return 0;
 }
