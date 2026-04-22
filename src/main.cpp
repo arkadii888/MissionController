@@ -22,11 +22,11 @@
 
 using namespace mavsdk;
 
-class InternalServiceImplementation {
+class InternalServiceImplementation final : public InternalService::Service {
 public:
     InternalServiceImplementation(Telemetry& t) : telemetry(t) {}
 
-    grpc::Status GetTelemetry(grpc::ServerContext* context, const Empty* request, TelemetryResponse* reply) {
+    grpc::Status GetTelemetry(grpc::ServerContext*, const Empty*, TelemetryResponse* reply) {
         reply->set_current_latitude(telemetry.position().latitude_deg);
         reply->set_current_longitude(telemetry.position().longitude_deg);
         return grpc::Status::OK;
