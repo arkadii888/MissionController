@@ -96,6 +96,21 @@ void GroundBaseCommunication(Action& action) {
     close(s);
 }
 
+void ClearThreads(std::thread& groundBaseCommunication, std::thread& internalCommunication) {
+    communicateWithGroundBase = false;
+    if(groundBaseCommunication.joinable()) {
+        groundBaseCommunication.join();
+    }
+
+    if(internalServer) {
+        internalServer->Shutdown();
+    }
+
+    if(internalCommunication.joinable()) {
+        internalCommunication.join();
+    }
+}
+
 int main() {
     Mavsdk mavsdk(Mavsdk::Configuration(ComponentType::GroundStation));
 
@@ -213,9 +228,7 @@ int main() {
 
     if(mission.upload_mission(plan) != Mission::Result::Success) {
         std::cout << "MissionController: Mission Upload Failed." << std::endl;
-        if(groundBaseCommunication.joinable()) {
-            groundBaseCommunication.join();
-        }
+        ClearThreads(groundBaseCommunication, internalCommunication);
         return 1;
     }
 
@@ -224,9 +237,7 @@ int main() {
 
     if(action.arm() != Action::Result::Success) {
         std::cout << "MissionController: Arm Failed." << std::endl;
-        if(groundBaseCommunication.joinable()) {
-            groundBaseCommunication.join();
-        }
+        ClearThreads(groundBaseCommunication, internalCommunication);
         return 1;
     }
 
@@ -235,9 +246,7 @@ int main() {
 
     if(mission.start_mission() != Mission::Result::Success) {
         std::cout << "MissionController: Mission Start Failed." << std::endl;
-        if(groundBaseCommunication.joinable()) {
-            groundBaseCommunication.join();
-        }
+        ClearThreads(groundBaseCommunication, internalCommunication);
         return 1;
     }
 
@@ -252,30 +261,26 @@ int main() {
         }
 
         if(missionStatus.second) {
-            std::cout << "MissionController: Mission Finished!" << std::endl;
             break;
         }
-        else {
-            std::cout << "MissionController: Mission Active..." << std::endl;
-        }
 
+        std::cout << "MissionController: Mission Active..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
+    std::cout << "MissionController: Mission Finished!" << std::endl;
+    std::cout << "MissionController: Clearing Mission..." << std::endl;
+
+    if(mission.clear_mission != Mission::Result::Success) {
+        std::cout << "MissionController: Mission Clear Failed." << std::endl;
+        ClearThreads(groundBaseCommunication, internalCommunication);
+        return 1;
+    }
+
+    std::cout << "MissionController: Mission Cleared!" << std::endl;
     std::cout << "MissionController: Shutting down..." << std::endl;
 
-    communicateWithGroundBase = false;
-    if(groundBaseCommunication.joinable()) {
-        groundBaseCommunication.join();
-    }
-
-    if(internalServer) {
-        internalServer->Shutdown();
-    }
-
-    if(internalCommunication.joinable()) {
-        internalCommunication.join();
-    }
+    ClearThreads(groundBaseCommunication, internalCommunication);
 
     return 0;
 }
