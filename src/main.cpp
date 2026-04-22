@@ -28,7 +28,7 @@ public:
 
     grpc::Status GetTelemetry(grpc::ServerContext* context, const Empty* request, TelemetryResponse* reply) {
         reply->set_current_latitude(telemetry.position().latitude_deg);
-        reply->set_current_logitude(telemetry.position().longitude_deg);
+        reply->set_current_longitude(telemetry.position().longitude_deg);
         return grpc::Status::OK;
     }
 
@@ -270,7 +270,7 @@ int main() {
     }
 
     if(internalServer) {
-        internalServer->ShutDown();
+        internalServer->Shutdown();
     }
 
     if(internalCommunication.joinable()) {
