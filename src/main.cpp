@@ -271,7 +271,7 @@ int main() {
     std::cout << "MissionController: Mission Finished!" << std::endl;
     std::cout << "MissionController: Clearing Mission..." << std::endl;
 
-    if(mission.clear_mission != Mission::Result::Success) {
+    if(mission.clear_mission() != Mission::Result::Success) {
         std::cout << "MissionController: Mission Clear Failed." << std::endl;
         ClearThreads(groundBaseCommunication, internalCommunication);
         return 1;
