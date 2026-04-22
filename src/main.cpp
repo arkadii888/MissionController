@@ -1,23 +1,16 @@
-#include <chrono>
 #include <exception>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
 #include <thread>
 #include <cstring>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <atomic>
 #include <unistd.h>
 #include <sys/time.h>
 #include <vector>
-#include <cmath>
 
-#include "mavsdk/mavsdk.h"
-#include "mavsdk/plugins/action/action.h"
-#include "mavsdk/plugins/telemetry/telemetry.h"
-#include <mavsdk/plugins/mission/mission.h>
+#include "mavsdk/plugins/mission/mission.h"
 
 #include <grpcpp/grpcpp.h>
 #include "internal_communication.grpc.pb.h"

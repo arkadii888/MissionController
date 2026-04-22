@@ -6,6 +6,7 @@
 #include "mavsdk/plugins/mission/mission.h"
 
 #include <memory>
+#include <vector>
 
 using namespace mavsdk;
 

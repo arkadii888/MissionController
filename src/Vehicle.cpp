@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <thread>
 #include <iostream>
+#include <chrono>
 
 Vehicle::Vehicle() {
     Connect();
@@ -36,7 +37,7 @@ void Vehicle::Detect() {
 }
 
 void Vehicle::CheckHealth() {
-    while(!telemetry.health_all_ok()) {
+    while(!telemetry->health_all_ok()) {
         std::cout << "Vehicle::CheckHealth: Vehicle Not Ready To Arm..." << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
@@ -45,13 +46,13 @@ void Vehicle::CheckHealth() {
 }
 
 void Vehicle::Kill() {
-    if(action.kill() != Action::Result::Success) {
+    if(action->kill() != Action::Result::Success) {
         throw std::runtime_error("Vehicle::Kill: Kill Failed.");
     }
 }
 
 void Vehicle::Arm() {
-    if(action.arm() != Action::Result::Success) {
+    if(action->arm() != Action::Result::Success) {
         throw std::runtime_error("Vehicle::Arm: Arm Failed.");
     }
 
@@ -62,11 +63,11 @@ void Vehicle::StartMission(const std::vector<Mission::MissionItem>& missionItems
     Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
 
-    if(mission.upload_mission(plan) != Mission::Result::Success) {
+    if(mission->upload_mission(plan) != Mission::Result::Success) {
         throw std::runtime_error("Vehicle::CompleteMission: Mission Upload Failed.");
     }
 
-    if(mission.start_mission() != Mission::Result::Success) {
+    if(mission->start_mission() != Mission::Result::Success) {
         throw std::runtime_error("Vehicle::CompleteMission: Mission Start Failed.");
     }
 
@@ -74,7 +75,7 @@ void Vehicle::StartMission(const std::vector<Mission::MissionItem>& missionItems
 }
 
 void Vehicle::ClearMission() {
-    if(mission.clear_mission() != Mission::Result::Success) {
+    if(mission->clear_mission() != Mission::Result::Success) {
         throw std::runtime_error("Vehicle::ClearMission: Failed.");
     }
 
@@ -83,10 +84,10 @@ void Vehicle::ClearMission() {
 
 TelemetryData Vehicle::GetTelemetry() {
     TelemetryData data{};
-    data.latitude_deg = telemetry.position().latitude_deg;
-    data.longitude_deg = telemetry.position().longitude_deg;
-    data.absolute_altitude_m = telemetry.position().absolute_altitude_m;
-    data.relative_altitude_m = telemetry.position().relative_altitude_m;
+    data.latitude_deg = telemetry->position().latitude_deg;
+    data.longitude_deg = telemetry->position().longitude_deg;
+    data.absolute_altitude_m = telemetry->position().absolute_altitude_m;
+    data.relative_altitude_m = telemetry->position().relative_altitude_m;
 
     return data;
 }
