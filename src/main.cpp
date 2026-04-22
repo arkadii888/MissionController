@@ -17,7 +17,38 @@
 #include "mavsdk/plugins/telemetry/telemetry.h"
 #include <mavsdk/plugins/mission/mission.h>
 
+#include <grpcpp/grpcpp.h>
+#include "internal_comm.grpc.pb.h"
+
 using namespace mavsdk;
+
+class InternalServiceImplementation {
+public:
+    InternalServiceImplementation(Telemetry& t) : telemetry(t) {}
+
+    grpc::Status GetTelemetry(grpc::ServerContext* context, const Empty* request, TelemetryResponse* reply) {
+        reply->set_current_latitude(telemetry.position().latitude_deg);
+        reply->set_current_logitude(telemetry.position().longitude_deg);
+        return grpc::Status::OK;
+    }
+
+private:
+    Telemetry& telemetry;
+};
+
+std::unique_ptr<grpc::Server> internalServer;
+
+void InternalCommunication(Telemetry& telemetry) {
+    InternalServiceImplementation service();
+    grpc::ServerBuilder builder;
+
+    builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
+    builder.RegisterService(&service);
+
+    internalServer = builder.BuildAndStart();
+
+    internalServer->Wait();
+}
 
 std::atomic<bool> communicateWithGroundBase = true;
 
@@ -92,6 +123,7 @@ int main() {
     auto mission = Mission(system);
 
     std::thread groundBaseCommunication(GroundBaseCommunication, std::ref(action));
+    std::thread internalCommunication(InternalCommunication, std::ref(telemetry));
 
     std::cout << "MissionController: Checking Health..." << std::endl;
 
@@ -230,9 +262,19 @@ int main() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
+    std::cout << "MissionController: Shutting down..." << std::endl;
+
     communicateWithGroundBase = false;
     if(groundBaseCommunication.joinable()) {
         groundBaseCommunication.join();
+    }
+
+    if(internalServer) {
+        internalServer->ShutDown();
+    }
+
+    if(internalCommunication.joinable()) {
+        internalCommunication.join();
     }
 
     return 0;
