@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <vector>
+#include <mutex>
 
 #include "mavsdk/plugins/mission/mission.h"
 
@@ -17,6 +18,9 @@
 #include "internal_communication.grpc.pb.h"
 
 #include "Vehicle.h"
+
+std::string prompt;
+std::mutex promptMutex;
 
 class InternalServiceImplementation final : public InternalService::Service {
 public:
@@ -57,7 +61,7 @@ public:
         }
 
         try {
-            //vehicle.StartMission(items);
+            vehicle.StartMission(items);
         } catch (const std::exception& error) {
             std::cout << "Error: " << error.what() << std::endl;
         }
@@ -65,10 +69,11 @@ public:
     }
 
     grpc::Status GetPrompt(grpc::ServerContext* context, const Empty* request, PromptResponse* reply) override {
-            std::string prompt = "Hello.";
-            reply->set_prompt(prompt);
-            return grpc::Status::OK;
-        }
+        std::lock_guard<std::mutex> lock(promptMutex);
+        reply->set_prompt(prompt);
+        prompt = "";
+        return grpc::Status::OK;
+    }
 
 private:
     Vehicle& vehicle;
@@ -126,6 +131,10 @@ void GroundBaseCommunication(Vehicle& vehicle) {
                     reply = error.what();
                 }
                 sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
+            }
+            else {
+                std::lock_guard<std::mutex> lock(promptMutex);
+                prompt = command;
             }
         }
     }
