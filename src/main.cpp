@@ -166,8 +166,12 @@ int main() {
         groundBaseCommunication = std::thread(GroundBaseCommunication, std::ref(vehicle));
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle));
 
-        // wait for mission order, wait for mission end, arm, disarm correctly
-        std::this_thread::sleep_for(std::chrono::seconds(180));
+        while(true) {
+            if(vehicle.IsMissionInProgress()) {
+                vehicle.TrackMission();
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
 
         vehicle.ClearMission();
     } catch (const std::exception& error) {

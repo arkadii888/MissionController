@@ -23,8 +23,11 @@ public:
     void Arm();
     void StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems);
     void ClearMission();
+    void TrackMission();
 
     TelemetryData GetTelemetry();
+
+    bool IsMissionInProgress() const;
 
 private:
     void Connect();
@@ -37,4 +40,5 @@ private:
     std::unique_ptr<mavsdk::Action> action;
     std::unique_ptr<mavsdk::Telemetry> telemetry;
     std::unique_ptr<mavsdk::Mission> mission;
+    bool missionInProgress = false;
 };

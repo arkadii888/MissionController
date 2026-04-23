@@ -51,7 +51,7 @@ void Vehicle::Kill() {
     }
 }
 
-void Vehicle::Arm() {
+void Vehicle::Arm() {  //TODO: Confirmation
     if(action->arm() != mavsdk::Action::Result::Success) {
         throw std::runtime_error("Vehicle::Arm: Arm Failed.");
     }
@@ -78,6 +78,7 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
     }
 
     std::cout << "Vehicle::CompleteMission: Mission Started!" << std::endl;
+    missionInProgress = true;
 }
 
 void Vehicle::ClearMission() {
@@ -96,4 +97,22 @@ TelemetryData Vehicle::GetTelemetry() {
     data.relative_altitude_m = telemetry->position().relative_altitude_m;
 
     return data;
+}
+
+bool Vehicle::IsMissionInProgress() const {
+    return missionInProgress;
+}
+
+void Vehicle::TrackMission() {
+    while(true) {
+        auto result = mission->is_mission_finished();
+        if(result.first != mavsdk::Mission::Result::Success) {
+            throw std::runtime_error("Vehicle::TrackMission: Failed.");
+        }
+        if(result.second) {
+            missionInProgress = false;
+            ClearMission();
+            break;
+        }
+    }
 }
