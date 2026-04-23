@@ -45,13 +45,13 @@ public:
             item.is_fly_through = receivedItem.is_fly_through();
             item.gimbal_pitch_deg = receivedItem.gimbal_pitch_deg();
             item.gimbal_yaw_deg = receivedItem.gimbal_yaw_deg();
-            item.camera_action = receivedItem.camera_action();
+            item.camera_action = static_cast<mavsdk::Mission::MissionItem::CameraAction>(receivedItem.camera_action());
             item.loiter_time_s = receivedItem.loiter_time_s();
             item.camera_photo_interval_s = receivedItem.camera_photo_interval_s();
             item.acceptance_radius_m = receivedItem.acceptance_radius_m();
             item.yaw_deg = receivedItem.yaw_deg();
             item.camera_photo_distance_m = receivedItem.camera_photo_distance_m();
-            item.vehicle_action = receivedItem.vehicle_action();
+            item.vehicle_action = static_cast<mavsdk::Mission::MissionItem::VehicleAction>(receivedItem.vehicle_action());
 
             items.push_back(item);
         }
