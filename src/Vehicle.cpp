@@ -67,6 +67,8 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
         throw std::runtime_error("Vehicle::CompleteMission: Mission Upload Failed.");
     }
 
+    Arm();
+
     if(mission->start_mission() != mavsdk::Mission::Result::Success) {
         throw std::runtime_error("Vehicle::CompleteMission: Mission Start Failed.");
     }

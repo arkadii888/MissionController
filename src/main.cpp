@@ -151,10 +151,8 @@ int main() {
         groundBaseCommunication = std::thread(GroundBaseCommunication, std::ref(vehicle));
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle));
 
-        vehicle.Arm();
-
         // wait for mission order, wait for mission end, arm, disarm correctly
-        std::this_thread::sleep_for(std::chrono::seconds(60));
+        std::this_thread::sleep_for(std::chrono::seconds(180));
 
         vehicle.ClearMission();
     } catch (const std::exception& error) {
