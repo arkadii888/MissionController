@@ -60,7 +60,7 @@ void Vehicle::Arm() {
 }
 
 void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
-    Mission::MissionPlan plan{};
+    mavsdk::Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
 
     if(mission->upload_mission(plan) != mavsdk::Mission::Result::Success) {
