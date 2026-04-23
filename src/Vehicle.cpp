@@ -11,9 +11,9 @@ Vehicle::Vehicle() {
     Detect();
 
     system = mavsdk.systems().at(0);
-    action = std::make_unique<Action>(system);
-    telemetry = std::make_unique<Telemetry>(system);
-    mission = std::make_unique<Mission>(system);
+    action = std::make_unique<mavsdk::Action>(system);
+    telemetry = std::make_unique<mavsdk::Telemetry>(system);
+    mission = std::make_unique<mavsdk::Mission>(system);
 
     CheckHealth();
 }
@@ -59,7 +59,7 @@ void Vehicle::Arm() {
     std::cout << "MissionController: Armed!" << std::endl;
 }
 
-void Vehicle::StartMission(const std::vector<Mission::MissionItem>& missionItems) {
+void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
     Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
 

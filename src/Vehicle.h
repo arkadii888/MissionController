@@ -21,7 +21,7 @@ public:
 
     void Kill();
     void Arm();
-    void StartMission(const std::vector<Mission::MissionItem>& missionItems);
+    void StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems);
     void ClearMission();
 
     TelemetryData GetTelemetry();
@@ -32,9 +32,9 @@ private:
     void CheckHealth();
 
 private:
-    Mavsdk mavsdk{Mavsdk::Configuration{ComponentType::GroundStation}};
-    std::shared_ptr<System> system;
-    std::unique_ptr<Action> action;
-    std::unique_ptr<Telemetry> telemetry;
-    std::unique_ptr<Mission> mission;
+    mavsdk::Mavsdk mavsdk{Mavsdk::Configuration{ComponentType::GroundStation}};
+    std::shared_ptr<mavsdk::System> system;
+    std::unique_ptr<mavsdk::Action> action;
+    std::unique_ptr<mavsdk::Telemetry> telemetry;
+    std::unique_ptr<mavsdk::Mission> mission;
 };
