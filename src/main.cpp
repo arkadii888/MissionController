@@ -57,7 +57,7 @@ public:
         }
 
         try {
-            vehicle.StartMission(items);
+            //vehicle.StartMission(items);
         } catch (const std::exception& error) {
             std::cout << "Error: " << error.what() << std::endl;
         }
