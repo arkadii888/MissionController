@@ -32,11 +32,11 @@ public:
     }
 
     grpc::Status StartMission(grpc::ServerContext* context, const MissionItemList* request, Empty* reply) override {
-        std::vector<Mission::MissionItem> items;
+        std::vector<mavsdk::Mission::MissionItem> items;
         items.reserve(request->items_size());
 
         for(auto& receivedItem : request->items()) {
-            Mission::MissionItem item{};
+            mavsdk::Mission::MissionItem item{};
 
             item.latitude_deg = receivedItem.latitude_deg();
             item.longitude_deg = receivedItem.longitude_deg();
