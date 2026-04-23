@@ -19,8 +19,8 @@ Vehicle::Vehicle() {
 }
 
 void Vehicle::Connect() {
-    ConnectionResult connectionResult = mavsdk.add_any_connection("serial:///dev/ttyAMA0:921600");
-    if (connectionResult != ConnectionResult::Success) {
+    mavsdk::ConnectionResult connectionResult = mavsdk.add_any_connection("serial:///dev/ttyAMA0:921600");
+    if (connectionResult != mavsdk::ConnectionResult::Success) {
         throw std::runtime_error("Vehicle::Connect: Connection Failed.");
     }
 
@@ -46,13 +46,13 @@ void Vehicle::CheckHealth() {
 }
 
 void Vehicle::Kill() {
-    if(action->kill() != Action::Result::Success) {
+    if(action->kill() != mavsdk::Action::Result::Success) {
         throw std::runtime_error("Vehicle::Kill: Kill Failed.");
     }
 }
 
 void Vehicle::Arm() {
-    if(action->arm() != Action::Result::Success) {
+    if(action->arm() != mavsdk::Action::Result::Success) {
         throw std::runtime_error("Vehicle::Arm: Arm Failed.");
     }
 
@@ -63,11 +63,11 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
     Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
 
-    if(mission->upload_mission(plan) != Mission::Result::Success) {
+    if(mission->upload_mission(plan) != mavsdk::Mission::Result::Success) {
         throw std::runtime_error("Vehicle::CompleteMission: Mission Upload Failed.");
     }
 
-    if(mission->start_mission() != Mission::Result::Success) {
+    if(mission->start_mission() != mavsdk::Mission::Result::Success) {
         throw std::runtime_error("Vehicle::CompleteMission: Mission Start Failed.");
     }
 
@@ -75,7 +75,7 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
 }
 
 void Vehicle::ClearMission() {
-    if(mission->clear_mission() != Mission::Result::Success) {
+    if(mission->clear_mission() != Mmavsdk::ission::Result::Success) {
         throw std::runtime_error("Vehicle::ClearMission: Failed.");
     }
 
