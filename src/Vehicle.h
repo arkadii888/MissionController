@@ -8,8 +8,6 @@
 #include <memory>
 #include <vector>
 
-using namespace mavsdk;
-
 struct TelemetryData {
     double latitude_deg = 0.0f;
     double longitude_deg = 0.0f;
