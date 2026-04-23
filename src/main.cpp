@@ -174,7 +174,6 @@ int main() {
         }
     } catch (const std::exception& error) {
         std::cout << "Error: " << error.what() << std::endl;
-        ClearThreads(groundBaseCommunication, internalCommunication);
     }
 
     ClearThreads(groundBaseCommunication, internalCommunication);
