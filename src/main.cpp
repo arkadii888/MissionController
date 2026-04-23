@@ -18,8 +18,6 @@
 
 #include "Vehicle.h"
 
-using namespace mavsdk;
-
 class InternalServiceImplementation final : public InternalService::Service {
 public:
     InternalServiceImplementation(Vehicle& v) : vehicle(v) {}
