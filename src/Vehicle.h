@@ -32,7 +32,7 @@ private:
     void CheckHealth();
 
 private:
-    mavsdk::Mavsdk mavsdk{Mavsdk::Configuration{ComponentType::GroundStation}};
+    mavsdk::Mavsdk mavsdk{mavsdk::Mavsdk::Configuration{ComponentType::GroundStation}};
     std::shared_ptr<mavsdk::System> system;
     std::unique_ptr<mavsdk::Action> action;
     std::unique_ptr<mavsdk::Telemetry> telemetry;
