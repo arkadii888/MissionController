@@ -172,8 +172,6 @@ int main() {
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-
-        vehicle.ClearMission();
     } catch (const std::exception& error) {
         std::cout << "Error: " << error.what() << std::endl;
         ClearThreads(groundBaseCommunication, internalCommunication);
