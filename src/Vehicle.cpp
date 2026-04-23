@@ -75,7 +75,7 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
 }
 
 void Vehicle::ClearMission() {
-    if(mission->clear_mission() != Mmavsdk::ission::Result::Success) {
+    if(mission->clear_mission() != mavsdk::Mission::Result::Success) {
         throw std::runtime_error("Vehicle::ClearMission: Failed.");
     }
 
