@@ -64,6 +64,12 @@ public:
         return grpc::Status::OK;
     }
 
+    grpc::Status GetPrompt(grpc::ServerContext* context, const Empty* request, PromptResponse* reply) override {
+            std::string prompt = "Hello.";
+            reply->set_prompt(prompt);
+            return grpc::Status::OK;
+        }
+
 private:
     Vehicle& vehicle;
 };
