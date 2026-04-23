@@ -1,3 +1,4 @@
+#include <chrono>
 #include <exception>
 #include <iostream>
 #include <memory>
@@ -155,6 +156,9 @@ int main() {
         vehicle.Arm();
 
         // wait for mission order, wait for mission end, arm, disarm correctly
+        while(true) {
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+        }
 
         vehicle.ClearMission();
     } catch (const std::exception& error) {
