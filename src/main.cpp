@@ -150,6 +150,9 @@ void GroundBaseCommunication(Vehicle& vehicle) {
             else {
                 std::lock_guard<std::mutex> lock(promptMutex);
                 prompt = command;
+
+                const char* reply = "Sent to Agent!";
+                sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
             }
 
             std::cout << "Command from Ground Base: " << command << std::endl;
