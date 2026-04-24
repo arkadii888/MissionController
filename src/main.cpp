@@ -132,6 +132,21 @@ void GroundBaseCommunication(Vehicle& vehicle) {
                 }
                 sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
             }
+            else if(command == "#telemetry") {
+                auto telemetry = vehicle.GetTelemetry();
+
+                std::string reply = "{";
+                reply += "\"latitude_deg\":" + std::to_string(telemetry.latitude_deg);
+                reply += "\"longitude_deg\":" + std::to_string(telemetry.longitude_deg);
+                reply += "\"absolute_altitude_m\":" + std::to_string(telemetry.absolute_altitude_m);
+                reply += "\"relative_altitude_m\":" + std::to_string(telemetry.relative_altitude_m);
+                reply += "\"voltage_v\":" + std::to_string(telemetry.voltage_v);
+                reply += "\"current_battery_a\":" + std::to_string(telemetry.current_battery_a);
+                reply += "\"remainig_percent\":" + std::to_string(telemetry.remainig_percent);
+                reply += "}";
+
+                sendto(s, reply.c_str(), reply.length(), 0, reinterpret_cast<sockaddr*>(&client), socklen);
+            }
             else {
                 std::lock_guard<std::mutex> lock(promptMutex);
                 prompt = command;
