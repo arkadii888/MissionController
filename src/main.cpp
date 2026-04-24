@@ -151,6 +151,8 @@ void GroundBaseCommunication(Vehicle& vehicle) {
                 std::lock_guard<std::mutex> lock(promptMutex);
                 prompt = command;
             }
+
+            std::cout << "Command from Ground Base: " << command << std::endl;
         }
     }
     close(s);
