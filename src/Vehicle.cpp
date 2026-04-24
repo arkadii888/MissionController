@@ -98,7 +98,7 @@ TelemetryData Vehicle::GetTelemetry() {
 
     data.voltage_v = telemetry->battery().voltage_v;
     data.current_battery_a = telemetry->battery().current_battery_a;
-    data.remainig_percent = telemetry->battery().remainig_percent;
+    data.remaining_percent = telemetry->battery().remaining_percent;
 
     return data;
 }

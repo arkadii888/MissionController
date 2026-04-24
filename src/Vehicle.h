@@ -17,7 +17,7 @@ struct TelemetryData {
     //battery
     float voltage_v = 0.0f;
     float current_battery_a = 0.0f;
-    float remainig_percent = 0.0f;
+    float remaining_percent = 0.0f;
 };
 
 class Vehicle {
