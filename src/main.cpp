@@ -142,7 +142,7 @@ void GroundBaseCommunication(Vehicle& vehicle) {
                 reply += "\"relative_altitude_m\":" + std::to_string(telemetry.relative_altitude_m) + ",";
                 reply += "\"voltage_v\":" + std::to_string(telemetry.voltage_v) + ",";
                 reply += "\"current_battery_a\":" + std::to_string(telemetry.current_battery_a) + ",";
-                reply += "\"remaining_percent\":" + std::to_string(telemetry.remaining_percent) + ",";
+                reply += "\"remaining_percent\":" + std::to_string(telemetry.remaining_percent);
                 reply += "}";
 
                 sendto(s, reply.c_str(), reply.length(), 0, reinterpret_cast<sockaddr*>(&client), socklen);
