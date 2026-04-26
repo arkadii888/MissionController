@@ -19,7 +19,7 @@ Vehicle::Vehicle() {
 }
 
 void Vehicle::Connect() {
-    mavsdk::ConnectionResult connectionResult = mavsdk.add_any_connection("udp://127.0.0.1:14540");
+    mavsdk::ConnectionResult connectionResult = mavsdk.add_any_connection("udpin://127.0.0.1:14540");
     if (connectionResult != mavsdk::ConnectionResult::Success) {
         throw std::runtime_error("Vehicle::Connect: Connection Failed.");
     }
