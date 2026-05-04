@@ -9,12 +9,10 @@
 #include <vector>
 
 struct TelemetryData {
-    //position
     double latitude_deg = 0.0f;
     double longitude_deg = 0.0f;
     float absolute_altitude_m = 0.0f;
     float relative_altitude_m = 0.0f;
-    //battery
     float voltage_v = 0.0f;
     float current_battery_a = 0.0f;
     float remaining_percent = 0.0f;
