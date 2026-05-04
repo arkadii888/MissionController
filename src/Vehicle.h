@@ -33,11 +33,13 @@ public:
     TelemetryData GetTelemetry();
 
     bool IsMissionInProgress() const;
+    bool IsArmed() const;
 
 private:
     void Connect();
     void Detect();
     void CheckHealth();
+    void Hold();
 
 private:
     mavsdk::Mavsdk mavsdk{mavsdk::Mavsdk::Configuration{mavsdk::ComponentType::GroundStation}};

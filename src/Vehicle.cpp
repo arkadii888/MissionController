@@ -51,7 +51,7 @@ void Vehicle::Kill() {
     }
 }
 
-void Vehicle::Arm() {  //TODO: Confirmation
+void Vehicle::Arm() {
     if(action->arm() != mavsdk::Action::Result::Success) {
         throw std::runtime_error("Vehicle::Arm: Arm Failed.");
     }
@@ -60,6 +60,12 @@ void Vehicle::Arm() {  //TODO: Confirmation
 }
 
 void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
+    if(missionInProgress) {
+        Hold();
+        ClearMission();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
     mavsdk::Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
 
@@ -69,9 +75,10 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    Arm();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    if(!IsArmed()) { //TODO: Confirmation
+        Arm();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
 
     if(mission->start_mission() != mavsdk::Mission::Result::Success) {
         throw std::runtime_error("Vehicle::CompleteMission: Mission Start Failed.");
@@ -119,4 +126,16 @@ void Vehicle::TrackMission() {
             break;
         }
     }
+}
+
+void Vehicle::Hold() {
+    if(action->hold() != mavsdk::Action::Result::Success) {
+        throw std::runtime_error("Vehicle::Hold: Hold Failed.");
+    }
+
+    std::cout << "MissionController: Hold!" << std::endl;
+}
+
+bool Vehicle::IsArmed() const {
+    return telemetry->armed();
 }
