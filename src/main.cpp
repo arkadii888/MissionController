@@ -12,6 +12,7 @@
 #include <vector>
 #include <mutex>
 
+#include <mavsdk/log_callback.h>
 #include "mavsdk/plugins/mission/mission.h"
 
 #include <grpcpp/grpcpp.h>
@@ -175,6 +176,10 @@ void ClearThreads(std::thread& groundBaseCommunication, std::thread& internalCom
 }
 
 int main() {
+    mavsdk::log::subscribe([](mavsdk::log::Level level, const std::string& message, const std::string& file, int line) {
+        return true;
+    });
+
     std::thread groundBaseCommunication;
     std::thread internalCommunication;
 
