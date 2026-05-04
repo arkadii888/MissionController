@@ -60,11 +60,12 @@ void Vehicle::Arm() {
 }
 
 void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
-    if(missionInProgress) {
+    if(telemetry->armed()) {
         Hold();
-        ClearMission();
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
+
+    ClearMission();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     mavsdk::Mission::MissionPlan plan{};
     plan.mission_items = missionItems;
@@ -108,24 +109,6 @@ TelemetryData Vehicle::GetTelemetry() {
     data.remaining_percent = telemetry->battery().remaining_percent;
 
     return data;
-}
-
-void Vehicle::TrackMission() {
-    if(!missionInProgress) {
-        return;
-    }
-
-    while(true) {
-        auto result = mission->is_mission_finished();
-        if(result.first != mavsdk::Mission::Result::Success) {
-            throw std::runtime_error("Vehicle::TrackMission: Failed.");
-        }
-        if(result.second) {
-            missionInProgress = false;
-            ClearMission();
-            break;
-        }
-    }
 }
 
 void Vehicle::Hold() {
