@@ -185,9 +185,7 @@ int main() {
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle));
 
         while(true) {
-            if(vehicle.IsMissionInProgress()) {
-                vehicle.TrackMission();
-            }
+            vehicle.TrackMission();
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     } catch (const std::exception& error) {

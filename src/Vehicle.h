@@ -25,21 +25,18 @@ public:
     Vehicle();
 
     void Kill();
-    void Arm();
     void StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems);
-    void ClearMission();
     void TrackMission();
 
     TelemetryData GetTelemetry();
-
-    bool IsMissionInProgress() const;
-    bool IsArmed() const;
 
 private:
     void Connect();
     void Detect();
     void CheckHealth();
     void Hold();
+    void Arm();
+    void ClearMission();
 
 private:
     mavsdk::Mavsdk mavsdk{mavsdk::Mavsdk::Configuration{mavsdk::ComponentType::GroundStation}};

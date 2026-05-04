@@ -75,7 +75,7 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    if(!IsArmed()) { //TODO: Confirmation
+    if(!telemetry->armed()) { //TODO: Confirmation
         Arm();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
@@ -110,11 +110,11 @@ TelemetryData Vehicle::GetTelemetry() {
     return data;
 }
 
-bool Vehicle::IsMissionInProgress() const {
-    return missionInProgress;
-}
-
 void Vehicle::TrackMission() {
+    if(!missionInProgress) {
+        return;
+    }
+
     while(true) {
         auto result = mission->is_mission_finished();
         if(result.first != mavsdk::Mission::Result::Success) {
@@ -134,8 +134,4 @@ void Vehicle::Hold() {
     }
 
     std::cout << "MissionController: Hold!" << std::endl;
-}
-
-bool Vehicle::IsArmed() const {
-    return telemetry->armed();
 }
