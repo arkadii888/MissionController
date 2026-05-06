@@ -86,7 +86,6 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
     }
 
     std::cout << "Vehicle::CompleteMission: Mission Started!" << std::endl;
-    missionInProgress = true;
 }
 
 void Vehicle::ClearMission() {
