@@ -18,6 +18,7 @@ set(PROTO_SRCS
 add_executable(launch
     src/main.cpp
     src/Vehicle.cpp
+    src/CommunicationContext.h
     ${PROTO_SRCS}
 )
 

@@ -19,13 +19,11 @@
 #include "internal_communication.grpc.pb.h"
 
 #include "Vehicle.h"
-
-std::string prompt;
-std::mutex promptMutex;
+#include "CommunicationContext.h"
 
 class InternalServiceImplementation final : public InternalService::Service {
 public:
-    InternalServiceImplementation(Vehicle& v) : vehicle(v) {}
+    InternalServiceImplementation(Vehicle& v, CommunicationContext& c) : vehicle(v), communicationContext(c) {}
 
     grpc::Status GetTelemetry(grpc::ServerContext*, const Empty*, TelemetryResponse* reply) {
         auto data = vehicle.GetTelemetry();
@@ -70,19 +68,20 @@ public:
     }
 
     grpc::Status GetPrompt(grpc::ServerContext* context, const Empty* request, PromptResponse* reply) override {
-        std::lock_guard<std::mutex> lock(promptMutex);
-        reply->set_prompt(prompt);
-        prompt = "";
+        std::lock_guard<std::mutex> lock(communicationContext.promptMutex);
+        reply->set_prompt(communicationContext.prompt);
+        communicationContext.prompt = "";
         return grpc::Status::OK;
     }
 
 private:
     Vehicle& vehicle;
+    CommunicationContext& communicationContext;
 };
 
 std::unique_ptr<grpc::Server> internalServer;
 
-void InternalCommunication(Vehicle& vehicle) {
+void InternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
     InternalServiceImplementation service(vehicle);
     grpc::ServerBuilder builder;
 
@@ -96,7 +95,7 @@ void InternalCommunication(Vehicle& vehicle) {
 
 std::atomic<bool> communicateWithGroundBase = true;
 
-void GroundBaseCommunication(Vehicle& vehicle) {
+void GroundBaseCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
     int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     timeval tv;
@@ -149,8 +148,8 @@ void GroundBaseCommunication(Vehicle& vehicle) {
                 sendto(s, reply.c_str(), reply.length(), 0, reinterpret_cast<sockaddr*>(&client), socklen);
             }
             else {
-                std::lock_guard<std::mutex> lock(promptMutex);
-                prompt = command;
+                std::lock_guard<std::mutex> lock(communicationContext.promptMutex);
+                communicationContext.prompt = command;
 
                 const char* reply = "Sent to Agent!";
                 sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
@@ -186,8 +185,9 @@ int main() {
     try {
         Vehicle vehicle;
 
-        groundBaseCommunication = std::thread(GroundBaseCommunication, std::ref(vehicle));
-        internalCommunication = std::thread(InternalCommunication, std::ref(vehicle));
+        CommunicationContext communicationContext;
+        groundBaseCommunication = std::thread(GroundBaseCommunication, std::ref(vehicle), std::ref(communicationContext));
+        internalCommunication = std::thread(InternalCommunication, std::ref(vehicle), std::ref(communicationContext));
 
         while(true) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
