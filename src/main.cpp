@@ -193,7 +193,7 @@ int main() {
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     } catch (const std::exception& error) {
-        std::cout << "Error: " << error.what() << std::endl;
+        std::cout << "Error: " << error.what() << std::endl; //TODO: React - land or return, depends
     }
 
     ClearThreads(groundBaseCommunication, internalCommunication);
