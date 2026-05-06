@@ -19,6 +19,7 @@ add_executable(launch
     src/main.cpp
     src/Vehicle.cpp
     src/CommunicationContext.h
+    src/InternalCommunicationImplementation.cpp
     ${PROTO_SRCS}
 )
 
