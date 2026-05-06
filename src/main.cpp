@@ -93,9 +93,9 @@ void InternalCommunication(Vehicle& vehicle, CommunicationContext& communication
     internalServer->Wait();
 }
 
-std::atomic<bool> communicateWithGroundBase = true;
+std::atomic<bool> communicateExternally = true;
 
-void GroundBaseCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
+void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
     int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     timeval tv;
@@ -112,7 +112,7 @@ void GroundBaseCommunication(Vehicle& vehicle, CommunicationContext& communicati
 
     char buffer[256];
 
-    while(communicateWithGroundBase) {
+    while(communicateExternally) {
         sockaddr_in client;
         socklen_t socklen = sizeof(client);
 
@@ -159,10 +159,10 @@ void GroundBaseCommunication(Vehicle& vehicle, CommunicationContext& communicati
     close(s);
 }
 
-void ClearThreads(std::thread& groundBaseCommunication, std::thread& internalCommunication) {
-    communicateWithGroundBase = false;
-    if(groundBaseCommunication.joinable()) {
-        groundBaseCommunication.join();
+void ClearThreads(std::thread& externalCommunication, std::thread& internalCommunication) {
+    communicateExternally = false;
+    if(externalCommunication.joinable()) {
+        externalCommunication.join();
     }
 
     if(internalServer) {
@@ -179,14 +179,14 @@ int main() {
         return true;
     });
 
-    std::thread groundBaseCommunication;
+    std::thread externalCommunication;
     std::thread internalCommunication;
 
     try {
         Vehicle vehicle;
 
         CommunicationContext communicationContext;
-        groundBaseCommunication = std::thread(GroundBaseCommunication, std::ref(vehicle), std::ref(communicationContext));
+        externalCommunication = std::thread(ExternalCommunication, std::ref(vehicle), std::ref(communicationContext));
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle), std::ref(communicationContext));
 
         while(true) {
@@ -196,6 +196,6 @@ int main() {
         std::cout << "Error: " << error.what() << std::endl; //TODO: React - land or return, depends
     }
 
-    ClearThreads(groundBaseCommunication, internalCommunication);
+    ClearThreads(externalCommunication, internalCommunication);
     return 0;
 }
