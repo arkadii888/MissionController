@@ -26,11 +26,11 @@
 std::unique_ptr<grpc::Server> internalServer;
 
 void InternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
-    InternalCommunicationImplementation service(vehicle, communicationContext);
+    InternalCommunicationImplementation implementation(vehicle, communicationContext);
     grpc::ServerBuilder builder;
 
     builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
-    builder.RegisterService(&service);
+    builder.RegisterService(&implementation);
 
     internalServer = builder.BuildAndStart();
 
