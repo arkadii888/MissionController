@@ -64,7 +64,12 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
         Hold();
     }
 
-    ClearMission();
+    try {
+        ClearMission();
+    } catch (const std::exception& error) {
+        std::cout << "Vehicle::StartMission: Clear" << std::endl;
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     mavsdk::Mission::MissionPlan plan{};
