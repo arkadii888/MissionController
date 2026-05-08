@@ -5,7 +5,6 @@
 #include <thread>
 #include <cstring>
 #include <atomic>
-#include <mutex>
 
 #include <mavsdk/log_callback.h>
 
@@ -22,15 +21,16 @@
 #include "Vehicle.h"
 #include "CommunicationContext.h"
 #include "InternalCommunicationImplementation.h"
+#include "ExternalCommunicationImplementation.h"
 
 std::unique_ptr<grpc::Server> internalServer;
 
 void InternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
-    InternalCommunicationImplementation implementation(vehicle, communicationContext);
+    InternalCommunicationImplementation i(vehicle, communicationContext);
     grpc::ServerBuilder builder;
 
     builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
-    builder.RegisterService(&implementation);
+    builder.RegisterService(&i);
 
     internalServer = builder.BuildAndStart();
 
@@ -55,6 +55,7 @@ void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communication
     bind(s, reinterpret_cast<sockaddr*>(&server), sizeof(server));
 
     char buffer[256];
+    ExternalCommunicationImplemenation e(vehicle, communicationContext);
 
     while(communicateExternally) {
         sockaddr_in client;
@@ -66,38 +67,8 @@ void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communication
         if(bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
             std::string command(buffer);
-
-            if(command == "#kill") {
-                const char* reply = "Killed!";
-                try {
-                    vehicle.Kill();
-                } catch (const std::exception& error) {
-                    reply = error.what();
-                }
-                sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
-            }
-            else if(command == "#telemetry") {
-                auto telemetry = vehicle.GetTelemetry();
-
-                std::string reply = "{";
-                reply += "\"latitude_deg\":" + std::to_string(telemetry.latitude_deg) + ",";
-                reply += "\"longitude_deg\":" + std::to_string(telemetry.longitude_deg) + ",";
-                reply += "\"absolute_altitude_m\":" + std::to_string(telemetry.absolute_altitude_m) + ",";
-                reply += "\"relative_altitude_m\":" + std::to_string(telemetry.relative_altitude_m) + ",";
-                reply += "\"voltage_v\":" + std::to_string(telemetry.voltage_v) + ",";
-                reply += "\"current_battery_a\":" + std::to_string(telemetry.current_battery_a) + ",";
-                reply += "\"remaining_percent\":" + std::to_string(telemetry.remaining_percent);
-                reply += "}";
-
-                sendto(s, reply.c_str(), reply.length(), 0, reinterpret_cast<sockaddr*>(&client), socklen);
-            }
-            else {
-                std::lock_guard<std::mutex> lock(communicationContext.promptMutex);
-                communicationContext.prompt = command;
-
-                const char* reply = "Sent to Agent!";
-                sendto(s, reply, strlen(reply), 0, reinterpret_cast<sockaddr*>(&client), socklen);
-            }
+            std::string reply = e.ProccessCommand(command);
+            sendto(s, reply.c_str(), reply.length(), 0, reinterpret_cast<sockaddr*>(&client), socklen);
         }
     }
     close(s);

@@ -65,7 +65,7 @@ void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& miss
     }
 
     try {
-        ClearMission();
+        ClearMission(); // TODO: Fake, if missions list is empty it returns error
     } catch (const std::exception& error) {
         std::cout << "Vehicle::StartMission: Clear" << std::endl;
     }
