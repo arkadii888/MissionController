@@ -61,6 +61,8 @@ void Vehicle::Arm() {
 
 void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
     auto progress = mission->mission_progress();
+    std::cout << "Vehicle::StartMission progress.current" << progress.current << std::endl;
+    std::cout << "Vehicle::StartMission " << progress.total << std::endl;
     if(progress.current < progress.total) {
         Hold();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
