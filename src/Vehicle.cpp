@@ -60,7 +60,7 @@ void Vehicle::Arm() {
 }
 
 void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
-    if(telemetry->armed()) {
+    if(telemetry->in_air()) {
         Hold();
     }
 
