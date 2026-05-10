@@ -11,5 +11,5 @@ public:
     void ReadPhoto();
 private:
     MediaContext& mediaContext;
-    std::string photoFolderPath = "path";
+    std::string photoFolderPath = "/home/dev/Photo";
 };
