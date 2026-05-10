@@ -45,5 +45,5 @@ std::string ExternalCommunicationImplemenation::Telemetry() {
 std::string ExternalCommunicationImplemenation::Prompt(const std::string& command) {
     std::lock_guard<std::mutex> lock(communicationContext.promptMutex);
     communicationContext.prompt = command;
-    return "Waiting for the mission to begin";
+    return "Mission in progress";
 }
