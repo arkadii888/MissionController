@@ -21,6 +21,8 @@ add_executable(launch
     src/CommunicationContext.h
     src/InternalCommunicationImplementation.cpp
     src/ExternalCommunicationImplementation.cpp
+    src/MediaContext.h
+    src/MediaHandler.cpp
     ${PROTO_SRCS}
 )
 
