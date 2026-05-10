@@ -8,13 +8,11 @@
 
 #include <mavsdk/log_callback.h>
 
-// UDP
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <sys/time.h>
 
-// gRPC
 #include <grpcpp/grpcpp.h>
 #include "internal_communication.grpc.pb.h"
 
@@ -42,38 +40,61 @@ void InternalCommunication(Vehicle& vehicle, CommunicationContext& communication
 std::atomic<bool> communicateExternally = true;
 
 void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext, MediaContext& mediaContext) {
-    int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+    int server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 500000;
-    setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    int opt = 1;
+    setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(8888);
-    server.sin_addr.s_addr = htonl(INADDR_ANY);
+    sockaddr_in serverAddress;
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port = htons(8888);
+    serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    bind(s, reinterpret_cast<sockaddr*>(&server), sizeof(server));
+    bind(server, reinterpret_cast<sockaddr*>(&serverAddress), sizeof(serverAddress));
 
-    char buffer[256];
+    listen(server, 5);
+
     ExternalCommunicationImplemenation e(vehicle, communicationContext, mediaContext);
 
     while(communicateExternally) {
-        sockaddr_in client;
-        socklen_t socklen = sizeof(client);
+            sockaddr_in clientAddress;
+            socklen_t socklen = sizeof(clientAddress);
 
-        memset(buffer, 0, sizeof(buffer));
+            int client = accept(server, reinterpret_cast<sockaddr*>(&clientAddress), &socklen);
+            if (client < 0) {
+                continue;
+            }
 
-        int bytesReceived = recvfrom(s, buffer, sizeof(buffer) - 1, 0, reinterpret_cast<sockaddr*>(&client), &socklen);
-        if(bytesReceived > 0) {
-            buffer[bytesReceived] = '\0';
-            std::string command(buffer);
-            std::string reply = e.ProccessCommand(command);
-            sendto(s, reply.c_str(), reply.length(), 0, reinterpret_cast<sockaddr*>(&client), socklen);
+            timeval tv;
+            tv.tv_sec = 0;
+            tv.tv_usec = 500000;
+            setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+            char buffer[256];
+            memset(buffer, 0, sizeof(buffer));
+
+            int bytesReceived = recv(client, buffer, sizeof(buffer) - 1, 0);
+            if(bytesReceived > 0) {
+                buffer[bytesReceived] = '\0';
+                std::string command(buffer);
+                std::string reply = e.ProccessCommand(command);
+
+                size_t totalSent = 0;
+                size_t bytesLeft = reply.length();
+                const char* dataPtr = reply.c_str();
+
+                while(totalSent < bytesLeft) {
+                    int sent = send(client, dataPtr + totalSent, bytesLeft - totalSent, 0);
+                    if (sent == -1) {
+                        break;
+                    }
+                    totalSent += sent;
+                }
+            }
+
+            close(client);
         }
-    }
-    close(s);
+    close(server);
 }
 
 std::atomic<bool> handleMedia = true;
