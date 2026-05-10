@@ -1,6 +1,7 @@
 #include "ExternalCommunicationImplementation.h"
+#include <mutex>
 
-ExternalCommunicationImplemenation::ExternalCommunicationImplemenation(Vehicle& v, CommunicationContext& c) : vehicle(v), communicationContext(c) {
+ExternalCommunicationImplemenation::ExternalCommunicationImplemenation(Vehicle& v, CommunicationContext& c, MediaContext& m) : vehicle(v), communicationContext(c), mediaContext(m) {
 
 }
 
@@ -10,6 +11,9 @@ std::string ExternalCommunicationImplemenation::ProccessCommand(const std::strin
     }
     else if(command == "#telemetry") {
         return Telemetry();
+    }
+    else if(command == "#photo") {
+        return Photo();
     }
     else {
         return Prompt(command);
@@ -46,4 +50,15 @@ std::string ExternalCommunicationImplemenation::Prompt(const std::string& comman
     std::lock_guard<std::mutex> lock(communicationContext.promptMutex);
     communicationContext.prompt = command;
     return "Mission in progress";
+}
+
+std::string ExternalCommunicationImplemenation::Photo() {
+    std::unique_lock<std::mutex> lock(mediaContext.photoMutex, std::try_to_lock);
+    if(lock.owns_lock()) {
+        std::string copy = mediaContext.photo;
+        mediaContext.photo = "";
+        return copy;
+    }
+
+    return "";
 }

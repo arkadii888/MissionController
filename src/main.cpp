@@ -22,6 +22,8 @@
 #include "CommunicationContext.h"
 #include "InternalCommunicationImplementation.h"
 #include "ExternalCommunicationImplementation.h"
+#include "MediaContext.h"
+#include "MediaHandler.h"
 
 std::unique_ptr<grpc::Server> internalServer;
 
@@ -39,7 +41,7 @@ void InternalCommunication(Vehicle& vehicle, CommunicationContext& communication
 
 std::atomic<bool> communicateExternally = true;
 
-void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext) {
+void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communicationContext, MediaContext& mediaContext) {
     int s = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     timeval tv;
@@ -55,7 +57,7 @@ void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communication
     bind(s, reinterpret_cast<sockaddr*>(&server), sizeof(server));
 
     char buffer[256];
-    ExternalCommunicationImplemenation e(vehicle, communicationContext);
+    ExternalCommunicationImplemenation e(vehicle, communicationContext, mediaContext);
 
     while(communicateExternally) {
         sockaddr_in client;
@@ -74,7 +76,23 @@ void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communication
     close(s);
 }
 
-void ClearThreads(std::thread& externalCommunication, std::thread& internalCommunication) {
+std::atomic<bool> handleMedia = true;
+
+void MediaHadling(MediaContext& mediaContext) {
+    MediaHandler handler{mediaContext};
+
+    while(handleMedia) {
+        handler.ReadPhoto();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+}
+
+void ClearThreads(std::thread& externalCommunication, std::thread& internalCommunication, std::thread& mediaHandling) {
+    handleMedia = false;
+    if(mediaHandling.joinable()) {
+        mediaHandling.join();
+    }
+
     communicateExternally = false;
     if(externalCommunication.joinable()) {
         externalCommunication.join();
@@ -96,13 +114,16 @@ int main() {
 
     std::thread externalCommunication;
     std::thread internalCommunication;
+    std::thread mediaHandling;
 
     try {
         Vehicle vehicle;
 
         CommunicationContext communicationContext;
-        externalCommunication = std::thread(ExternalCommunication, std::ref(vehicle), std::ref(communicationContext));
+        MediaContext mediaContext;
+        externalCommunication = std::thread(ExternalCommunication, std::ref(vehicle), std::ref(communicationContext), std::ref(mediaContext));
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle), std::ref(communicationContext));
+        mediaHandling = std::thread(mediaHandling, std::ref(mediaContext));
 
         while(true) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -111,6 +132,6 @@ int main() {
         std::cout << "Error: " << error.what() << std::endl; //TODO: React - land or return, depends
     }
 
-    ClearThreads(externalCommunication, internalCommunication);
+    ClearThreads(externalCommunication, internalCommunication, mediaHandling);
     return 0;
 }
