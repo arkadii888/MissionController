@@ -57,43 +57,42 @@ void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communication
     ExternalCommunicationImplemenation e(vehicle, communicationContext, mediaContext);
 
     while(communicateExternally) {
-            sockaddr_in clientAddress;
-            socklen_t socklen = sizeof(clientAddress);
+        sockaddr_in clientAddress;
+        socklen_t socklen = sizeof(clientAddress);
 
-            int client = accept(server, reinterpret_cast<sockaddr*>(&clientAddress), &socklen);
-            if (client < 0) {
-                continue;
-            }
-
-            timeval tv;
-            tv.tv_sec = 0;
-            tv.tv_usec = 500000;
-            setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-
-            char buffer[256];
-            memset(buffer, 0, sizeof(buffer));
-
-            int bytesReceived = recv(client, buffer, sizeof(buffer) - 1, 0);
-            if(bytesReceived > 0) {
-                buffer[bytesReceived] = '\0';
-                std::string command(buffer);
-                std::string reply = e.ProccessCommand(command);
-
-                size_t totalSent = 0;
-                size_t bytesLeft = reply.length();
-                const char* dataPtr = reply.c_str();
-
-                while(totalSent < bytesLeft) {
-                    int sent = send(client, dataPtr + totalSent, bytesLeft - totalSent, 0);
-                    if (sent == -1) {
-                        break;
-                    }
-                    totalSent += sent;
-                }
-            }
-
-            close(client);
+        int client = accept(server, reinterpret_cast<sockaddr*>(&clientAddress), &socklen);
+        if (client < 0) {
+            continue;
         }
+
+        timeval tv;
+        tv.tv_sec = 0;
+        tv.tv_usec = 500000;
+        setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+        char buffer[256];
+        memset(buffer, 0, sizeof(buffer));
+
+        int bytesReceived = recv(client, buffer, sizeof(buffer) - 1, 0);
+        if(bytesReceived > 0) {
+            buffer[bytesReceived] = '\0';
+            std::string command(buffer);
+            std::string reply = e.ProccessCommand(command);
+
+            size_t totalSent = 0;
+            size_t bytesLeft = reply.length();
+            const char* dataPtr = reply.c_str();
+
+            while(totalSent < bytesLeft) {
+                int sent = send(client, dataPtr + totalSent, bytesLeft - totalSent, 0);
+                if (sent == -1) {
+                    break;
+                }
+                totalSent += sent;
+            }
+        }
+        close(client);
+    }
     close(server);
 }
 
