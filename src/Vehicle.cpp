@@ -60,17 +60,11 @@ void Vehicle::Arm() {
 }
 
 void Vehicle::StartMission(const std::vector<mavsdk::Mission::MissionItem>& missionItems) {
-    //auto progress = mission->mission_progress();
-    //if(progress.total > 0) {
-    //    Hold();
-    //    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    //}
-
-    try {
-        ClearMission(); // TODO: Fake, if missions list is empty it returns error
-    } catch (const std::exception& error) {
-        std::cout << "Vehicle::StartMission: Clear" << std::endl;
+    if(mission->pause_mission() != mavsdk::Mission::Result::Success) {
+        throw std::runtime_error("Vehicle::CompleteMission: Mission Pause Failed.");
     }
+
+    ClearMission();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
