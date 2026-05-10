@@ -78,7 +78,7 @@ void ExternalCommunication(Vehicle& vehicle, CommunicationContext& communication
 
 std::atomic<bool> handleMedia = true;
 
-void MediaHadling(MediaContext& mediaContext) {
+void MediaHandling(MediaContext& mediaContext) {
     MediaHandler handler{mediaContext};
 
     while(handleMedia) {
