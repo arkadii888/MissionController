@@ -123,7 +123,7 @@ int main() {
         MediaContext mediaContext;
         externalCommunication = std::thread(ExternalCommunication, std::ref(vehicle), std::ref(communicationContext), std::ref(mediaContext));
         internalCommunication = std::thread(InternalCommunication, std::ref(vehicle), std::ref(communicationContext));
-        mediaHandling = std::thread(mediaHandling, std::ref(mediaContext));
+        mediaHandling = std::thread(MediaHandling, std::ref(mediaContext));
 
         while(true) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
