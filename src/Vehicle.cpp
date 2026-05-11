@@ -114,7 +114,7 @@ TelemetryData Vehicle::GetTelemetry() {
     data.remaining_percent = battery.remaining_percent;
 
     data.yaw_deg = gps.yaw_deg;
-    std::cout << "yaw_deg " << yaw_deg << std::endl;
+    std::cout << "yaw_deg " << data.yaw_deg << std::endl;
 
     return data;
 }
