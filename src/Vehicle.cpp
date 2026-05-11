@@ -101,8 +101,8 @@ TelemetryData Vehicle::GetTelemetry() {
     TelemetryData data{};
 
     auto position = telemetry->position();
-    auto euler = telemetry->attitude_euler();
     auto battery = telemetry->battery();
+    auto euler = telemetry->attitude_euler();
 
     data.latitude_deg = position.latitude_deg;
     data.longitude_deg = position.longitude_deg;
@@ -114,7 +114,6 @@ TelemetryData Vehicle::GetTelemetry() {
     data.remaining_percent = battery.remaining_percent;
 
     data.yaw_deg = euler.yaw_deg;
-    std::cout << "yaw_deg " << data.yaw_deg << std::endl;
 
     return data;
 }
