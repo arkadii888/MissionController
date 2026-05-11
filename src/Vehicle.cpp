@@ -117,11 +117,3 @@ TelemetryData Vehicle::GetTelemetry() {
 
     return data;
 }
-
-void Vehicle::Hold() {
-    if(action->hold() != mavsdk::Action::Result::Success) {
-        throw std::runtime_error("Vehicle::Hold: Hold Failed.");
-    }
-
-    std::cout << "MissionController: Hold!" << std::endl;
-}

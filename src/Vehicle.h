@@ -32,7 +32,6 @@ private:
     void Connect();
     void Detect();
     void CheckHealth();
-    void Hold();
     void Arm();
     void ClearMission();
 
