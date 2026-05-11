@@ -99,14 +99,22 @@ void Vehicle::ClearMission() {
 
 TelemetryData Vehicle::GetTelemetry() {
     TelemetryData data{};
-    data.latitude_deg = telemetry->position().latitude_deg;
-    data.longitude_deg = telemetry->position().longitude_deg;
-    data.absolute_altitude_m = telemetry->position().absolute_altitude_m;
-    data.relative_altitude_m = telemetry->position().relative_altitude_m;
 
-    data.voltage_v = telemetry->battery().voltage_v;
-    data.current_battery_a = telemetry->battery().current_battery_a;
-    data.remaining_percent = telemetry->battery().remaining_percent;
+    auto position = telemetry->position();
+    auto gps = telemetry->raw_gps();
+    auto battery = telemetry->battery();
+
+    data.latitude_deg = position.latitude_deg;
+    data.longitude_deg = position.longitude_deg;
+    data.absolute_altitude_m = position.absolute_altitude_m;
+    data.relative_altitude_m = position.relative_altitude_m;
+
+    data.voltage_v = battery.voltage_v;
+    data.current_battery_a = battery.current_battery_a;
+    data.remaining_percent = battery.remaining_percent;
+
+    data.yaw_deg = gps.yaw_deg;
+    std::cout << "yaw_deg " << yaw_deg << std::endl;
 
     return data;
 }

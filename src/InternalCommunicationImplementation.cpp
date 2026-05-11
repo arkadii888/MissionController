@@ -10,6 +10,7 @@ grpc::Status InternalCommunicationImplementation::GetTelemetry(grpc::ServerConte
     reply->set_longitude_deg(data.longitude_deg);
     reply->set_absolute_altitude_m(data.absolute_altitude_m);
     reply->set_relative_altitude_m(data.relative_altitude_m);
+    reply->set_yaw_deg(data.yaw_deg);
     return grpc::Status::OK;
 }
 
