@@ -7,9 +7,11 @@ A C++ application that hosts a TCP server for communication with the GroundBase,
 The entire flow can be divided into three streams: a gRPC server, a TCP server, and the main program loop.
 
 **gRPC Server**
+
 Runs on port ```50051``` and uses this [proto](https://github.com/arkadii888/Finch/blob/main/internal_communication.proto) file.
 
 **TCP Server**
+
 Runs on port ```8888``` and expects the following:
 
 ```#kill``` — emergency drone stop
