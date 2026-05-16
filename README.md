@@ -4,7 +4,7 @@ A C++ application that hosts a TCP server for communication with the GroundBase,
 
 ## How does it work?
 
-The entire flow can be divided into three streams: a gRPC server, a TCP server, and the main program loop.
+The entire flow can be divided into three threads: a gRPC server, a TCP server, and the main program loop.
 
 **gRPC Server**
 
