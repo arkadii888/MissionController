@@ -40,9 +40,7 @@ sudo apt install -y libgrpc++-dev protobuf-compiler-grpc libprotobuf-dev
 
 ```
 cd Executor/src 
-
 protoc -I ../.. --cpp_out=. ../../internal_communication.proto
-
 protoc -I ../.. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ../../internal_communication.proto
 ```
 
