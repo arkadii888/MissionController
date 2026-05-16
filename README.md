@@ -28,7 +28,6 @@ Runs on port ```8888``` and expects the following:
 
 ```
 wget https://github.com/mavlink/MAVSDK/releases/download/v3.17.1/libmavsdk-dev_3.17.1_ubuntu24.04_amd64.deb 
-
 sudo dpkg -i libmavsdk-dev_3.17.1_ubuntu24.04_amd64.deb
 ```
 
